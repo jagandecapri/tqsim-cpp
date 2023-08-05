@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(tqsim-cpp VERSION 0.1.0 LANGUAGES C CXX)
+project(tqsim-cpp VERSION 0.1.0 LANGUAGES CXX)
 
 include(CTest)
 enable_testing()
@@ -15,6 +15,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_subdirectory(src)
 
-enable_testing()
-include(GoogleTest)
+#enable_testing()
+#include(GoogleTest)
 add_subdirectory(test)
