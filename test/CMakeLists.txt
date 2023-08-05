@@ -13,7 +13,8 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src)
 # 'Google_Tests_run' is the target name
-add_executable(Google_Tests_run test_circuit.cpp)
+add_executable(Google_Tests_run test_circuit.cpp
+        test_operator_generator.cpp)
 target_link_libraries(Google_Tests_run gtest gtest_main)
 target_link_libraries(Google_Tests_run src)
 
