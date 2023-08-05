@@ -4,7 +4,7 @@
 using namespace std;
 
 int main(int, char**){
-    Circuit circuit = Circuit(1);
+    Circuit circuit = Circuit(2,3);
     circuit.print();
     cout << "Hello, from tqsim-cpp!\n";
     return 0;

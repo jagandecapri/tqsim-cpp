@@ -3,26 +3,10 @@
 
 using namespace std;
 
-// class Circuit
-// {
-// private:
-//     /* data */
-//     int x;
-// public:
-//     Circuit(int){
-//         this->x = x;
-//     };
-//     ~Circuit(){
-
-//     };
-//     void print(){
-//         cout << "x = " << x << endl;
-//     };
-// };
-
-Circuit::Circuit(int x)
+Circuit::Circuit(int nb_qudits, int nb_anyons_per_qudit)
 {
-    this->x = x;
+    this->nb_qudits = nb_qudits;
+    this->nb_anyons_per_qudit = nb_anyons_per_qudit;
 }
 
 Circuit::~Circuit()
@@ -30,7 +14,7 @@ Circuit::~Circuit()
 }
 
 void Circuit::print(){
-    cout << "x = " << x << endl;
+    cout << "nb_qudits = " << nb_qudits <<  " nb_anyons_per_qudit = " << nb_anyons_per_qudit << endl;
 };
 
 // int main(int argc, char const *argv[])

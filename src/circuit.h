@@ -6,9 +6,10 @@
 class Circuit{
     private:
         /* data */
-        int x;
+        int nb_qudits;
+        int nb_anyons_per_qudit;
     public:
-        Circuit(int);
+        Circuit(int nb_qudits = 1, int nb_anyons_per_qudit = 3);
         ~Circuit();
         void print();
 };
