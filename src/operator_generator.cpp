@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <stdexcept> // For std::invalid_argument
 #include <Eigen/Dense>
+#include "basis.h"
 #include "operator_generator.h"
 
 class OperatorGenerator : public OperatorGeneratorInterface {
@@ -22,7 +23,7 @@ public:
      * @param outcome Integer parameter outcome.
      * @return Eigen::Matrix<double, 2, 2> The F matrix.
      */
-    Eigen::Matrix<double, 2, 2> F(int a1, int a2, int a3, int outcome) {
+    Eigen::Matrix<double, 2, 2> F(int a1, int a2, int a3, int outcome) override {
         const double inv_phi = (std::sqrt(5) - 1) / 2;  // inverse of golden number
         Eigen::Matrix<double, 2, 2> f_matrix;
 
@@ -77,7 +78,7 @@ public:
      * @param a2 Integer parameter a2.
      * @return Eigen::Matrix<std::complex<double>, 2, 2> The R matrix.
      */
-    Eigen::Matrix<std::complex<double>, 2, 2> R(int a1, int a2) {
+    Eigen::Matrix<std::complex<double>, 2, 2> R(int a1, int a2) override {
         using complex_t = std::complex<double>;
         Eigen::Matrix<complex_t, 2, 2> r_matrix;
 
@@ -106,7 +107,7 @@ public:
     *  @return b_matrix The braid matrix computed using Eigen.
     */
     Eigen::Matrix<std::complex<double>, 2, 2> B(int a0, int a1,
-                                                int a2, int outcome) {
+                                                int a2, int outcome) override {
         // Compute the intermediate matrices
         Eigen::Matrix<double, 2, 2> f_result = this->F(a0, a1, a2, outcome);
         Eigen::Matrix<std::complex<double>, 2, 2> r_result = this->R(a1, a2);
@@ -129,7 +130,7 @@ public:
  *
  * @throws std::invalid_argument If the index value is not valid (less than or equal to 0, or greater than the size of state_i).
  */
-    std::complex<double> sigma(int index, const std::vector<int> &state_f, const std::vector<int> &state_i) {
+    std::complex<double> sigma(int index, const std::vector<int> &state_f, const std::vector<int> &state_i) override {
         if (index <= 0 || index > static_cast<int>(state_i.size())) {
             throw std::invalid_argument("index value is not valid!");
         }
@@ -175,7 +176,8 @@ public:
  *
  * @return The L matrix component.
  */
-    std::complex<double> L(int k, int h, int i_, int i, const std::vector<int> &jj_, const std::vector<int> &jj) {
+    std::complex<double>
+    L(int k, int h, int i_, int i, const std::vector<int> &jj_, const std::vector<int> &jj) override {
         std::complex<double> component(0.0, 0.0);
 
         int qudit_len = static_cast<int>(jj.size());
@@ -243,7 +245,7 @@ public:
  * @return The S matrix component.
  */
     std::complex<double> S(int jm, int jmo, int jmoo, int jmo_, int h, int i_, int i, const std::vector<int> &jj_,
-                           const std::vector<int> &jj) {
+                           const std::vector<int> &jj) override {
         std::complex<double> component(0.0, 0.0);
 
         for (int kk: {0, 1}) {
@@ -265,11 +267,9 @@ public:
      * @return The Sigma matrix component.
      */
     std::complex<double> gen_sigma(int index,
-                                   const std::vector<std::vector<int>> &state_i_qudits,
-                                   const std::vector<int> &state_i_roots,
-                                   const std::vector<std::vector<int>> &state_f_qudits,
-                                   const std::vector<int> &state_f_roots) {
-        int qudit_len = static_cast<int>(state_i_qudits[0].size());
+                                   const State &state_i,
+                                   const State &state_f) {
+        int qudit_len = static_cast<int>(state_i.qudits[0].size());
         int nb_anyons_per_qudit = qudit_len + 1;
 
         std::complex<double> amplitude(0.0, 0.0);
@@ -278,18 +278,18 @@ public:
         if (index % nb_anyons_per_qudit > 0) {
             int m = index / nb_anyons_per_qudit;
             int idx = index % nb_anyons_per_qudit;
-            amplitude = sigma(idx, state_f_qudits.at(m), state_i_qudits.at(m));
+            amplitude = sigma(idx, state_f.qudits.at(m), state_i.qudits.at(m));
 
-            for (size_t i = 0; i < state_i_qudits.size(); ++i) {
+            for (size_t i = 0; i < state_i.qudits.size(); ++i) {
                 if (i == static_cast<size_t>(m)) {
                     continue;
-                } else if (state_i_qudits[i] != state_f_qudits[i]) {
+                } else if (state_i.qudits[i] != state_f.qudits[i]) {
                     braket = (0.0, 0.0);
                 }
             }
 
-            for (size_t i = 0; i < state_i_roots.size(); ++i) {
-                if (state_i_roots[i] != state_f_roots[i]) {
+            for (size_t i = 0; i < state_i.roots.size(); ++i) {
+                if (state_i.roots[i] != state_f.roots[i]) {
                     braket = (0.0, 0.0);
                 }
             }
@@ -297,60 +297,59 @@ public:
         } else {
             int m = (index / nb_anyons_per_qudit) - 1;
 
-            std::vector<std::vector<int>> new_state_i_qudits = state_i_qudits;
-            std::vector<int> new_state_i_roots = state_i_roots;
-            new_state_i_qudits.at(m).back() = state_f_qudits.at(m).back();
-            new_state_i_qudits.at(m + 1) = state_f_qudits.at(m + 1);
+            State new_state_i = state_i;
+            new_state_i.qudits.at(m).back() = state_f.qudits.at(m).back();
+            new_state_i.qudits.at(m + 1) = state_f.qudits.at(m + 1);
 
             int jm = 0, jmo = 0, jmoo = 0, jmo_ = 0, h = 0, i_ = 0, i = 0;
             std::vector<int> jj_, jj;
 
             if (m + 1 > 2) {
-                new_state_i_roots[m - 1] = state_f_roots[m - 1];
+                new_state_i.roots[m - 1] = state_f.roots[m - 1];
 
-                jj_ = new_state_i_qudits[m + 1];
-                jj = state_i_qudits[m + 1];
-                h = state_i_qudits.at(m).at(qudit_len - 2);
-                i = state_i_qudits.at(m).at(qudit_len - 1);
-                i_ = new_state_i_qudits.at(m).at(qudit_len - 1);
+                jj_ = new_state_i.qudits[m + 1];
+                jj = state_i.qudits[m + 1];
+                h = state_i.qudits.at(m).at(qudit_len - 2);
+                i = state_i.qudits.at(m).at(qudit_len - 1);
+                i_ = new_state_i.qudits.at(m).at(qudit_len - 1);
 
-                jmo_ = new_state_i_roots[m - 1];
-                jmoo = state_i_roots[m - 2];
-                jmo = state_i_roots[m - 1];
-                jm = state_i_roots[m];
+                jmo_ = new_state_i.roots[m - 1];
+                jmoo = state_i.roots[m - 2];
+                jmo = state_i.roots[m - 1];
+                jm = state_i.roots[m];
 
             } else if (m + 1 == 2) {
-                new_state_i_roots[m - 1] = state_f_roots[m - 1];
+                new_state_i.roots[m - 1] = state_f.roots[m - 1];
 
-                jj_ = new_state_i_qudits[m + 1];
-                jj = state_i_qudits[m + 1];
-                h = state_i_qudits.at(m).at(qudit_len - 2);
-                i = state_i_qudits.at(m).at(qudit_len - 1);
-                i_ = new_state_i_qudits.at(m).at(qudit_len - 1);
+                jj_ = new_state_i.qudits[m + 1];
+                jj = state_i.qudits[m + 1];
+                h = state_i.qudits.at(m).at(qudit_len - 2);
+                i = state_i.qudits.at(m).at(qudit_len - 1);
+                i_ = new_state_i.qudits.at(m).at(qudit_len - 1);
 
-                jmo_ = new_state_i_roots[m - 1];
-                jmoo = state_i_qudits.at(0).at(qudit_len - 1);
-                jmo = state_i_roots[m - 1];
-                jm = state_i_roots[m];
+                jmo_ = new_state_i.roots[m - 1];
+                jmoo = state_i.qudits.at(0).at(qudit_len - 1);
+                jmo = state_i.roots[m - 1];
+                jm = state_i.roots[m];
 
             } else if (m + 1 == 1) {
 
-                jj_ = new_state_i_qudits[m + 1];
-                jj = state_i_qudits[m + 1];
-                h = state_i_qudits.at(m).at(qudit_len - 2);
-                i = state_i_qudits.at(m).at(qudit_len - 1);
-                i_ = new_state_i_qudits.at(m).at(qudit_len - 1);
+                jj_ = new_state_i.qudits[m + 1];
+                jj = state_i.qudits[m + 1];
+                h = state_i.qudits.at(m).at(qudit_len - 2);
+                i = state_i.qudits.at(m).at(qudit_len - 1);
+                i_ = new_state_i.qudits.at(m).at(qudit_len - 1);
 
-                jmo_ = new_state_i_qudits.at(0).at(qudit_len - 1);
+                jmo_ = new_state_i.qudits.at(0).at(qudit_len - 1);
                 jmoo = 0;
-                jmo = state_i_qudits.at(0).at(qudit_len - 1);
-                jm = state_i_roots[m];
+                jmo = state_i.qudits.at(0).at(qudit_len - 1);
+                jm = state_i.roots[m];
 
             }
 
             amplitude += S(jm, jmo, jmoo, jmo_, h, i_, i, jj_, jj);
 
-            if (new_state_i_qudits != state_f_qudits && new_state_i_roots != state_f_roots) {
+            if (new_state_i.qudits != state_f.qudits && new_state_i.roots != state_f.roots) {
                 braket = (0.0, 0.0);
             }
         }

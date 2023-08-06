@@ -5,6 +5,7 @@
 #include <cmath>
 #include <Eigen/Dense>
 #include <gtest/gtest.h>
+#include <basis.h>
 #include <operator_generator.cpp>
 
 
@@ -155,20 +156,24 @@ TEST(SFunctionTest, TestCases) {
     // Test case 2: Add more test cases as needed.
 }
 
-TEST(gen_sigmaFunctionTest, TestCases) {
+TEST(GenSigmaFunctionTest, TestCases) {
     OperatorGenerator operator_generator = OperatorGenerator();
     // Test case 1
     int index_case1 = 3;
-    std::vector<std::vector<int>> state_i_qudits_case1 = {{1, 1},
-                                                          {0, 1}};
-    std::vector<int> state_i_roots_case1 = {0};
-    std::vector<std::vector<int>> state_f_qudits_case1 = {{1, 0},
-                                                          {1, 0}};
-    std::vector<int> state_f_roots_case1 = {0};
 
-    std::complex<double> result_case1 = operator_generator.gen_sigma(index_case1, state_i_qudits_case1,
-                                                                     state_i_roots_case1, state_f_qudits_case1,
-                                                                     state_f_roots_case1);
-//    std::complex<double> expected_case1(0, 0);
-//    EXPECT_EQ(result_case1, expected_case1);
+    State state_i_case_1 = {
+            .qudits =  {{0, 1},
+                        {0, 1}},
+            .roots =  {0}
+    };
+
+    State state_f_case_1 = {
+            .qudits =  {{1, 0},
+                        {1, 0}},
+            .roots =  {0}
+    };
+
+    std::complex<double> result_case1 = operator_generator.gen_sigma(index_case1, state_i_case_1, state_f_case_1);
+    std::complex<double> expected_case1(-0, 0);
+    EXPECT_EQ(result_case1, expected_case1);
 }

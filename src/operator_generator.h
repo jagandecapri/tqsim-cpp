@@ -12,7 +12,14 @@ public:
 
     virtual Eigen::Matrix<std::complex<double>, 2, 2> R(int, int) = 0;
 
-    virtual std::complex<double> sigma(int index, const std::vector<int> &state_f, const std::vector<int> &state_i) = 0;
+    virtual Eigen::Matrix<std::complex<double>, 2, 2> B(int, int, int, int) = 0;
+
+    virtual std::complex<double> sigma(int, const std::vector<int> &, const std::vector<int> &) = 0;
+
+    virtual std::complex<double> L(int, int, int, int, const std::vector<int> &, const std::vector<int> &) = 0;
+
+    virtual std::complex<double> S(int, int, int, int, int, int, int, const std::vector<int> &,
+                                   const std::vector<int> &) = 0;
 };
 
 #endif //TQSIM_CPP_OPERATOR_GENERATOR_H
