@@ -14,9 +14,9 @@ class BasisGeneratorInterface {
 
     virtual bool check_state(const State &) = 0;
 
-    virtual State gen_state(std::vector<int>, int, int) = 0;
+    virtual State gen_state(const std::vector<int> &, int, int) = 0;
 
-    virtual std::vector<State> generate_basis(int, int) = 0;
+    virtual Basis generate_basis(int, int) = 0;
 };
 
 #endif //TQSIM_CPP_BASIS_GENERATOR_H

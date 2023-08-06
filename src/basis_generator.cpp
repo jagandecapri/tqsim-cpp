@@ -45,6 +45,12 @@ public:
         return true;
     };
 
+    /**
+ * Checks whether the state obeys specific rules.
+ *
+ * @param state Input state represented by a Basis struct.
+ * @return True if the state obeys the rules, False otherwise.
+ */
     bool check_state(const State &state) override {
         std::size_t nb_qudits = state.qudits.size();
         std::size_t qudit_len = state.qudits[0].size();
@@ -75,12 +81,27 @@ public:
         return true;
     };
 
-    State gen_state(std::vector<int>, int, int) override {
-        State basis;
-        return basis;
+    State gen_state(const std::vector<int> &comb, int nb_qudits, int qudit_len) override {
+        State state;
+
+        for (size_t i = 0; i < comb.size(); ++i) {
+            int label = comb[i];
+            if (i < (nb_qudits * qudit_len)) {
+                if (i % qudit_len) {
+                    state.qudits.back().push_back(label);
+                } else {
+                    state.qudits.push_back({label});
+                }
+            } else {
+                state.roots.push_back(label);
+            }
+        }
+
+        return state;
+
     };
 
-    std::vector<State> generate_basis(int, int) override {
+    Basis generate_basis(int, int) override {
         std::vector<State> basis;
         return basis;
     };

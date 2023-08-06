@@ -69,3 +69,27 @@ TEST(CheckStateTest, TestCases) {
     };
     EXPECT_FALSE(basis_generator.check_state(invalidState3));
 }
+
+// Test cases for genState function
+TEST(GenStateTest, TestCases) {
+    BasisGenerator basis_generator = BasisGenerator();
+    // Test case 1: nb_qudits = 3, qudit_len = 2, comb = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    std::vector<int> comb1 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    State expectedState1{
+            {{1, 2}, {3, 4}, {5, 6}},
+            {7,      8,      9}
+    };
+    State result1 = basis_generator.gen_state(comb1, 3, 2);
+    EXPECT_EQ(result1.qudits, expectedState1.qudits);
+    EXPECT_EQ(result1.roots, expectedState1.roots);
+
+    // Test case 2: nb_qudits = 2, qudit_len = 3, comb = [1, 2, 3, 4, 5, 6, 7]
+    std::vector<int> comb2 = {1, 2, 3, 4, 5, 6, 7};
+    State expectedState2{
+            {{1, 2, 3}, {4, 5, 6}},
+            {7}
+    };
+    State result2 = basis_generator.gen_state(comb2, 2, 3);
+    EXPECT_EQ(result2.qudits, expectedState2.qudits);
+    EXPECT_EQ(result2.roots, expectedState2.roots);
+}

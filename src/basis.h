@@ -9,4 +9,6 @@ struct State {
     std::vector<std::vector<int>> qudits;
     std::vector<int> roots;
 };
+
+typedef std::vector<State> Basis;
 #endif //TQSIM_CPP_BASIS_H
