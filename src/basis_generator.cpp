@@ -46,8 +46,8 @@ public:
     };
 
     bool check_state(const Basis &state) override {
-        int nb_qudits = state.qudits.size();
-        int qudit_len = state.qudits[0].size();
+        std::size_t nb_qudits = state.qudits.size();
+        std::size_t qudit_len = state.qudits[0].size();
 
         for (const std::vector<int> &qudit: state.qudits) {
             if (qudit.size() == qudit_len) {
