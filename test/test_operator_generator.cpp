@@ -19,7 +19,7 @@ bool complexIsApprox(const std::complex<double>& a, const std::complex<double>& 
 }
 
 // Test case for the F function
-TEST(FunctionTest, FTest) {
+TEST(FFunctionTest, TestCases) {
     // Test case 1: a1 + a2 + a3 + outcome = 4
     int a1_case1 = 1, a2_case1 = 1, a3_case1 = 1, outcome_case1 = 1;
     Eigen::Matrix<double, 2, 2> result_case1 = F(a1_case1, a2_case1, a3_case1, outcome_case1);
