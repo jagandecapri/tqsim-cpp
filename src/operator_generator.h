@@ -20,6 +20,10 @@ public:
 
     virtual std::complex<double> S(int, int, int, int, int, int, int, const std::vector<int> &,
                                    const std::vector<int> &) = 0;
+
+    virtual std::complex<double> gen_sigma(int,
+                                           const State &,
+                                           const State &) = 0;
 };
 
 #endif //TQSIM_CPP_OPERATOR_GENERATOR_H

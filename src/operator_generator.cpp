@@ -268,7 +268,7 @@ public:
      */
     std::complex<double> gen_sigma(int index,
                                    const State &state_i,
-                                   const State &state_f) {
+                                   const State &state_f) override {
         int qudit_len = static_cast<int>(state_i.qudits[0].size());
         int nb_anyons_per_qudit = qudit_len + 1;
 
