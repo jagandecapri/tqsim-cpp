@@ -108,3 +108,24 @@ TEST(SigmaFunctionTest, TestCases) {
 
     // Test case 2: Add more test cases as needed.
 }
+
+// Test case for the L function
+TEST(LFunctionTest, TestCases) {
+    OperatorGenerator operator_generator = OperatorGenerator();
+    // Test case 1
+    int k_case1 = 0;
+    int h_case1 = 1;
+    int i_case1 = 0;
+    int icase1 = 0;
+    std::vector<int> jj_case1 = {1, 0};
+    std::vector<int> jjcase1 = {1, 0};
+
+    std::complex<double> result_case1 = operator_generator.L(k_case1, h_case1, i_case1, icase1, jj_case1, jj_case1);
+
+    // You need to define the expected result for the test case based on your implementation.
+    // For example:
+    std::complex<double> expected_case1(-0.5, 0.3632712640026805);
+    EXPECT_EQ(result_case1, expected_case1);
+
+    // Test case 2: Add more test cases as needed.
+}
