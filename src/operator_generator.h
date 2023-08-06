@@ -11,6 +11,8 @@ public:
     virtual Eigen::Matrix<double, 2, 2> F(int, int, int, int) = 0;
 
     virtual Eigen::Matrix<std::complex<double>, 2, 2> R(int, int) = 0;
+
+    virtual std::complex<double> sigma(int index, const std::vector<int> &state_f, const std::vector<int> &state_i) = 0;
 };
 
 #endif //TQSIM_CPP_OPERATOR_GENERATOR_H

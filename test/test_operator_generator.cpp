@@ -90,3 +90,21 @@ TEST(BFunctionTest, TestCases) {
                 complexIsApprox(result_case1(1, 0), expected_case1(1, 0)) &&
                 complexIsApprox(result_case1(1, 1), expected_case1(1, 1)));
 }
+
+// Test case for the sigma function
+TEST(SigmaFunctionTest, TestCases) {
+    OperatorGenerator operator_generator = OperatorGenerator();
+    // Test case 1
+    int index_case1 = 1;
+    std::vector<int> state_f_case1 = {1, 0};
+    std::vector<int> state_i_case1 = {1, 0};
+
+    std::complex<double> result_case1 = operator_generator.sigma(index_case1, state_f_case1, state_i_case1);
+
+    // You need to define the expected result for the test case based on your implementation.
+    // For example:
+    std::complex<double> expected_case1(-0.30901699437494734, 0.9510565162951536);
+    EXPECT_EQ(result_case1, expected_case1);
+
+    // Test case 2: Add more test cases as needed.
+}
