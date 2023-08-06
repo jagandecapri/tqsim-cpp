@@ -12,7 +12,7 @@ class BasisGeneratorInterface {
 
     virtual bool check_outcomes(std::vector<int>) = 0;
 
-    virtual bool check_state(std::vector<std::vector<int>>) = 0;
+    virtual bool check_state(const Basis &) = 0;
 
     virtual Basis gen_state(std::vector<int>, int, int) = 0;
 

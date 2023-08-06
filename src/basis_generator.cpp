@@ -45,7 +45,33 @@ public:
         return true;
     };
 
-    bool check_state(std::vector<std::vector<int>>) override {
+    bool check_state(const Basis &state) override {
+        int nb_qudits = state.qudits.size();
+        int qudit_len = state.qudits[0].size();
+
+        for (const std::vector<int> &qudit: state.qudits) {
+            if (qudit.size() == qudit_len) {
+                if (!check_outcomes(qudit)) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        if (nb_qudits != static_cast<int>(state.roots.size()) + 1) {
+            return false;
+        }
+
+        int previous_outcome = state.qudits[0].back();
+
+        for (size_t i = 0; i < state.roots.size(); ++i) {
+            if (!check_rule(previous_outcome, state.qudits[i + 1].back(), state.roots[i])) {
+                return false;
+            }
+            previous_outcome = state.roots[i];
+        }
+
         return true;
     };
 
