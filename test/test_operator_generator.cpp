@@ -5,7 +5,7 @@
 #include <cmath>
 #include <Eigen/Dense>
 #include <gtest/gtest.h>
-#include <basis.h>
+#include <container.h>
 #include <operator_generator.cpp>
 
 
@@ -175,5 +175,24 @@ TEST(GenSigmaFunctionTest, TestCases) {
 
     std::complex<double> result_case1 = operator_generator.gen_sigma(index_case1, state_i_case_1, state_f_case_1);
     std::complex<double> expected_case1(-0, 0);
+    EXPECT_EQ(result_case1, expected_case1);
+}
+
+TEST(GenerateBraidingOperator, TestCases) {
+    BasisGenerator basis_generator = BasisGenerator();
+    OperatorGenerator operator_generator = OperatorGenerator(basis_generator);
+
+    int index_case1 = 1;
+    int nb_qudits_case1 = 1;
+    int nb_anyons_per_qudit_case1 = 2;
+
+    Sigma expected_case1 = {
+            {std::complex<double>(-0.8090169943749473, -0.5877852522924732), std::complex<double>(-0, 0)},
+            {std::complex<double>(0, 0),                                     std::complex<double>(-0.30901699437494734,
+                                                                                                  0.9510565162951536)},
+    };
+
+    Sigma result_case1 = operator_generator.generate_braiding_operator(index_case1, nb_qudits_case1,
+                                                                       nb_anyons_per_qudit_case1);
     EXPECT_EQ(result_case1, expected_case1);
 }

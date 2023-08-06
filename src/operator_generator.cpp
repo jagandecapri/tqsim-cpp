@@ -2,15 +2,25 @@
 // Created by Jagan on 06/08/2023.
 //
 #include <complex>
+#include <utility>
 #include <vector>
-#include <unordered_map>
 #include <stdexcept> // For std::invalid_argument
 #include <Eigen/Dense>
-#include "basis.h"
+#include "container.h"
 #include "operator_generator.h"
+#include "basis_generator.cpp"
 
 class OperatorGenerator : public OperatorGeneratorInterface {
+    BasisGenerator basis_generator;
 public:
+    OperatorGenerator() {
+
+    }
+
+    explicit OperatorGenerator(BasisGenerator basis_generator) {
+        this->basis_generator = std::move(basis_generator);
+    }
+
     /**
      * @brief Calculates the F matrix based on input values.
      *
@@ -355,5 +365,30 @@ public:
         }
 
         return braket * amplitude;
+    }
+
+    /**
+ * Generate the braiding operator of index 'index' for a system of
+ * a given number of qudits and anyons per qudit. This operator braids
+ * anyons at positions 'index' and 'index'+1.
+ *
+ * @param index The operator's index.
+ * @param nb_qudits Number of qudits in the circuit.
+ * @param nb_anyons_per_qudit Number of anyons in each qudit.
+ * @return Matrix representation of the braiding operator as a list of lists (sigmas).
+ */
+    Sigma generate_braiding_operator(int index, int nb_qudits, int nb_anyons_per_qudit) override {
+        // Generate the basis states
+        Basis basis = this->basis_generator.generate_basis(nb_qudits, nb_anyons_per_qudit);
+
+        Sigma sigma;
+        for (size_t f = 0; f < basis.size(); ++f) {
+            sigma.emplace_back();
+            for (const auto &base_i: basis) {
+                sigma[f].push_back(this->gen_sigma(index, base_i, basis[f]));
+            }
+        }
+
+        return sigma;
     }
 };

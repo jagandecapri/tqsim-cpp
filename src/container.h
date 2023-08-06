@@ -1,6 +1,7 @@
 //
 // Created by Jagan on 06/08/2023.
 //
+#include <complex>
 #include <vector>
 
 #ifndef TQSIM_CPP_BASIS_H
@@ -17,4 +18,6 @@ struct State {
 };
 
 typedef std::vector<State> Basis;
+
+typedef std::vector<std::vector<std::complex<double>>> Sigma;
 #endif //TQSIM_CPP_BASIS_H

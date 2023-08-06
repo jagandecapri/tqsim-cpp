@@ -4,7 +4,7 @@ set(HEADER_FILES
         circuit.h
         operator_generator.h
         basis_generator.h
-        basis.h
+        container.h
 )
 
 set(SOURCE_FILES

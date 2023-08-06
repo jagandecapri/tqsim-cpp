@@ -2,6 +2,7 @@
 // Created by Jagan on 05/08/2023.
 //
 #include <Eigen/Dense>
+#include "container.h"
 
 #ifndef TQSIM_CPP_OPERATOR_GENERATOR_H
 #define TQSIM_CPP_OPERATOR_GENERATOR_H
@@ -24,6 +25,8 @@ public:
     virtual std::complex<double> gen_sigma(int,
                                            const State &,
                                            const State &) = 0;
+
+    virtual Sigma generate_braiding_operator(int, int, int) = 0;
 };
 
 #endif //TQSIM_CPP_OPERATOR_GENERATOR_H
