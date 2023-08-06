@@ -93,3 +93,17 @@ TEST(GenStateTest, TestCases) {
     EXPECT_EQ(result2.qudits, expectedState2.qudits);
     EXPECT_EQ(result2.roots, expectedState2.roots);
 }
+
+// Test cases for generateBasis function
+TEST(GenerateBasisTest, TestCases) {
+    BasisGenerator basis_generator = BasisGenerator();
+    // Test case 1: nb_qudits = 3, nb_anyons_per_qudit = 2
+    int nb_qudits1 = 1;
+    int nb_anyons_per_qudit1 = 2;
+    Basis expectedBasis1 = {
+            {{{0}}, {}},
+            {{{1}}, {}}
+    };
+    Basis result1 = basis_generator.generate_basis(nb_qudits1, nb_anyons_per_qudit1);
+    EXPECT_EQ(result1, expectedBasis1);
+}

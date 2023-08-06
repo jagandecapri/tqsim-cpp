@@ -101,8 +101,46 @@ public:
 
     };
 
-    Basis generate_basis(int, int) override {
+    /**
+ * Generate all the basis states for a system of a given number of qudits
+ * and a given number of anyons per qudit.
+ *
+ * @param nb_qudits Number of qudits in the circuit.
+ * @param nb_anyons_per_qudit Number of anyons in each qudit.
+ * @return A list of basis states represented by a vector of State objects.
+ */
+    Basis generate_basis(int nb_qudits, int nb_anyons_per_qudit) override {
+        int nb_roots = nb_qudits - 1;
+        int qudit_len = nb_anyons_per_qudit - 1;
+        int nb_labels = nb_qudits * qudit_len + nb_roots;
+
         std::vector<State> basis;
+        std::vector<int> curr_comb(nb_labels, 0);
+        std::vector<int> final_comb(nb_labels, 1);
+
+        State curr_state = this->gen_state(curr_comb, nb_qudits, qudit_len);
+
+        if (this->check_state(curr_state)) {
+            basis.push_back(curr_state);
+        }
+
+        while (curr_comb != final_comb) {
+            for (int i = 0; i < nb_labels; ++i) {
+                if (curr_comb[i] == 0) {
+                    curr_comb[i] = 1;
+                    break;
+                } else {
+                    curr_comb[i] = 0;
+                }
+            }
+
+            curr_state = this->gen_state(curr_comb, nb_qudits, qudit_len);
+
+            if (this->check_state(curr_state)) {
+                basis.push_back(curr_state);
+            }
+        }
+
         return basis;
     };
 };
