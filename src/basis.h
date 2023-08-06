@@ -5,7 +5,7 @@
 
 #ifndef TQSIM_CPP_BASIS_H
 #define TQSIM_CPP_BASIS_H
-struct Basis {
+struct State {
     std::vector<std::vector<int>> qudits;
     std::vector<int> roots;
 };

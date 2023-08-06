@@ -45,7 +45,7 @@ public:
         return true;
     };
 
-    bool check_state(const Basis &state) override {
+    bool check_state(const State &state) override {
         std::size_t nb_qudits = state.qudits.size();
         std::size_t qudit_len = state.qudits[0].size();
 
@@ -75,13 +75,13 @@ public:
         return true;
     };
 
-    Basis gen_state(std::vector<int>, int, int) override {
-        Basis basis;
+    State gen_state(std::vector<int>, int, int) override {
+        State basis;
         return basis;
     };
 
-    std::vector<Basis> generate_basis(int, int) override {
-        std::vector<Basis> basis;
+    std::vector<State> generate_basis(int, int) override {
+        std::vector<State> basis;
         return basis;
     };
 };
