@@ -3,6 +3,7 @@
 //
 #include <complex>
 #include <vector>
+#include <unordered_map>
 #include <stdexcept> // For std::invalid_argument
 #include <Eigen/Dense>
 #include "operator_generator.h"
@@ -252,5 +253,108 @@ public:
         }
 
         return component;
+    }
+
+    /**
+     * Generate the Sigma matrix component used in the calculation of the braiding operator between two anyons separated between two qudits not fused immediately.
+     *
+     * @param index int: The index of the Sigma matrix component.
+     * @param state_i std::unordered_map<std::string, std::vector<std::vector<int>>>: The initial state represented as a dictionary containing "qudits" and "roots".
+     * @param state_f std::unordered_map<std::string, std::vector<std::vector<int>>>: The final state represented as a dictionary containing "qudits" and "roots".
+     *
+     * @return The Sigma matrix component.
+     */
+    std::complex<double> gen_sigma(int index,
+                                   const std::vector<std::vector<int>> &state_i_qudits,
+                                   const std::vector<int> &state_i_roots,
+                                   const std::vector<std::vector<int>> &state_f_qudits,
+                                   const std::vector<int> &state_f_roots) {
+        int qudit_len = static_cast<int>(state_i_qudits[0].size());
+        int nb_anyons_per_qudit = qudit_len + 1;
+
+        std::complex<double> amplitude(0.0, 0.0);
+        std::complex<double> braket(1.0, 0.0);
+
+        if (index % nb_anyons_per_qudit > 0) {
+            int m = index / nb_anyons_per_qudit;
+            int idx = index % nb_anyons_per_qudit;
+            amplitude = sigma(idx, state_f_qudits.at(m), state_i_qudits.at(m));
+
+            for (size_t i = 0; i < state_i_qudits.size(); ++i) {
+                if (i == static_cast<size_t>(m)) {
+                    continue;
+                } else if (state_i_qudits[i] != state_f_qudits[i]) {
+                    braket = (0.0, 0.0);
+                }
+            }
+
+            for (size_t i = 0; i < state_i_roots.size(); ++i) {
+                if (state_i_roots[i] != state_f_roots[i]) {
+                    braket = (0.0, 0.0);
+                }
+            }
+
+        } else {
+            int m = (index / nb_anyons_per_qudit) - 1;
+
+            std::vector<std::vector<int>> new_state_i_qudits = state_i_qudits;
+            std::vector<int> new_state_i_roots = state_i_roots;
+            new_state_i_qudits.at(m).back() = state_f_qudits.at(m).back();
+            new_state_i_qudits.at(m + 1) = state_f_qudits.at(m + 1);
+
+            int jm = 0, jmo = 0, jmoo = 0, jmo_ = 0, h = 0, i_ = 0, i = 0;
+            std::vector<int> jj_, jj;
+
+            if (m + 1 > 2) {
+                new_state_i_roots[m - 1] = state_f_roots[m - 1];
+
+                jj_ = new_state_i_qudits[m + 1];
+                jj = state_i_qudits[m + 1];
+                h = state_i_qudits.at(m).at(qudit_len - 2);
+                i = state_i_qudits.at(m).at(qudit_len - 1);
+                i_ = new_state_i_qudits.at(m).at(qudit_len - 1);
+
+                jmo_ = new_state_i_roots[m - 1];
+                jmoo = state_i_roots[m - 2];
+                jmo = state_i_roots[m - 1];
+                jm = state_i_roots[m];
+
+            } else if (m + 1 == 2) {
+                new_state_i_roots[m - 1] = state_f_roots[m - 1];
+
+                jj_ = new_state_i_qudits[m + 1];
+                jj = state_i_qudits[m + 1];
+                h = state_i_qudits.at(m).at(qudit_len - 2);
+                i = state_i_qudits.at(m).at(qudit_len - 1);
+                i_ = new_state_i_qudits.at(m).at(qudit_len - 1);
+
+                jmo_ = new_state_i_roots[m - 1];
+                jmoo = state_i_qudits.at(0).at(qudit_len - 1);
+                jmo = state_i_roots[m - 1];
+                jm = state_i_roots[m];
+
+            } else if (m + 1 == 1) {
+
+                jj_ = new_state_i_qudits[m + 1];
+                jj = state_i_qudits[m + 1];
+                h = state_i_qudits.at(m).at(qudit_len - 2);
+                i = state_i_qudits.at(m).at(qudit_len - 1);
+                i_ = new_state_i_qudits.at(m).at(qudit_len - 1);
+
+                jmo_ = new_state_i_qudits.at(0).at(qudit_len - 1);
+                jmoo = 0;
+                jmo = state_i_qudits.at(0).at(qudit_len - 1);
+                jm = state_i_roots[m];
+
+            }
+
+            amplitude += S(jm, jmo, jmoo, jmo_, h, i_, i, jj_, jj);
+
+            if (new_state_i_qudits != state_f_qudits && new_state_i_roots != state_f_roots) {
+                braket = (0.0, 0.0);
+            }
+        }
+
+        return braket * amplitude;
     }
 };
