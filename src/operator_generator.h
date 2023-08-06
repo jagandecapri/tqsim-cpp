@@ -1,7 +1,7 @@
 //
 // Created by Jagan on 05/08/2023.
 //
-#include <cmath>
+#include <complex>
 #include <Eigen/Dense>
 
 #ifndef TQSIM_CPP_OPERATOR_GENERATOR_H
@@ -63,4 +63,33 @@ Eigen::Matrix<double, 2, 2> F(int a1, int a2, int a3, int outcome) {
 
     return f_matrix;
 }
+
+/**
+ * @brief Calculates the R matrix based on input values.
+ *
+ * The R matrix is a 2x2 matrix that depends on two integer parameters (a1 and a2).
+ * The values of these parameters determine the values in the R matrix as per the provided conditions.
+ *
+ * @param a1 Integer parameter a1.
+ * @param a2 Integer parameter a2.
+ * @return Eigen::Matrix<std::complex<double>, 2, 2> The R matrix.
+ */
+Eigen::Matrix<std::complex<double>, 2, 2> R(int a1, int a2) {
+    using complex_t = std::complex<double>;
+    Eigen::Matrix<complex_t, 2, 2> r_matrix;
+
+    if (a1 + a2 == 2) {
+        const double pi = std::acos(-1);
+        complex_t exp_val1 = std::exp(complex_t(0.0, -4 * pi / 5.0));
+        complex_t exp_val2 = std::exp(complex_t(0.0, 3 * pi / 5.0));
+        r_matrix << exp_val1, complex_t(0, 0),
+                complex_t(0, 0), exp_val2;
+    } else {
+        r_matrix << complex_t(1, 0), complex_t(0, 0),
+                complex_t(0, 0), complex_t(1, 0);
+    }
+
+    return r_matrix;
+}
+
 #endif //TQSIM_CPP_OPERATOR_GENERATOR_H
