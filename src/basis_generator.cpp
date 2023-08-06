@@ -25,7 +25,23 @@ public:
         }
     }
 
-    bool check_outcomes(std::vector<int>) override {
+    /**
+ * Checks whether the list of outcomes obeys a specific rule.
+ *
+ * @param outcomes List of outcomes.
+ * @return True if all outcomes obey the rule, False otherwise.
+ */
+    bool check_outcomes(std::vector<int> outcomes) override {
+        int previousOutcome = 1;
+
+        for (int outcome: outcomes) {
+            if (this->check_rule(previousOutcome, 1, outcome)) {
+                previousOutcome = outcome;
+            } else {
+                return false;
+            }
+        }
+
         return true;
     };
 
