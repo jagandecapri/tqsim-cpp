@@ -92,4 +92,31 @@ Eigen::Matrix<std::complex<double>, 2, 2> R(int a1, int a2) {
     return r_matrix;
 }
 
+// Define the B function (equivalent to Python implementation)
+Eigen::Matrix<std::complex<double>, 2, 2> B(int a0, int a1,
+                                            int a2, int outcome) {
+    /*
+    Braid matrix
+
+    Parameters:
+        a0: Matrix representing a0
+        a1: Matrix representing a1
+        a2: Matrix representing a2
+        outcome: Matrix representing outcome
+
+    Returns:
+        b_matrix: The braid matrix computed using Eigen.
+    */
+
+    // Compute the intermediate matrices
+    Eigen::Matrix<double, 2, 2> f_result = F(a0, a1, a2, outcome);
+    Eigen::Matrix<std::complex<double>, 2, 2> r_result = R(a1, a2);
+    Eigen::Matrix<double, 2, 2> f_transpose_conjugate_result = F(a0, a2, a1, outcome).transpose().conjugate();
+
+    // Compute the braid matrix using Eigen matrix operations
+    Eigen::Matrix<std::complex<double>, 2, 2> b_matrix = f_result * r_result * f_transpose_conjugate_result;
+
+    return b_matrix;
+}
+
 #endif //TQSIM_CPP_OPERATOR_GENERATOR_H

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <Eigen/Dense>
 #include <gtest/gtest.h>
+#include "gmock/gmock.h"
 #include <operator_generator.h>
 
 /**
@@ -14,7 +15,7 @@
  * @param tol Tolerance for comparison.
  * @return true if both real and imaginary parts are within the tolerance, false otherwise.
  */
-bool complexIsApprox(const std::complex<double>& a, const std::complex<double>& b, double tol = 1e-6) {
+bool complexIsApprox(const std::complex<double> &a, const std::complex<double> &b, double tol = 1e-6) {
     return std::abs(a.real() - b.real()) < tol && std::abs(a.imag() - b.imag()) < tol;
 }
 
@@ -68,4 +69,26 @@ TEST(RFunctionTest, TestCases) {
                 complexIsApprox(result_case2(1, 1), expected_case2(1, 1)));
 
     // Add more test cases as needed...
+}
+
+Eigen::Matrix<double, 2, 2> F_Mock(int a1, int a2, int a3, int outcome) {
+    Eigen::Matrix<double, 2, 2> f_matrix;
+    f_matrix << 0, 0,
+            0, 1;
+    return f_matrix;
+}
+
+// Test case for the B function
+TEST(BFunctionTest, TestCases) {
+    // This declares a lambda, which can be called just like a function
+    Eigen::Matrix<double, 2, 2> (*originalF)(int, int, int, int) = F;
+    F = F_Mock;
+    // Test case 1: a1 + a2 + a3 + outcome = 4
+    int a0 = 1, a1 = 1, a2 = 1, outcome = 1;
+    Eigen::Matrix<std::complex<double>, 2, 2> b_matrix = B(a0, a1, a2, outcome);
+    Eigen::Matrix<std::complex<double>, 2, 2> expected_case1;
+    const double pi = std::acos(-1);
+    std::complex<double> exp_val1 = std::exp(std::complex<double>(0.0, -4 * pi / 5.0));
+    std::complex<double> exp_val2 = std::exp(std::complex<double>(0.0, 3 * pi / 5.0));
+    F = originalF;
 }
