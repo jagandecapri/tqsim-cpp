@@ -4,9 +4,26 @@
 #include "basis_generator.h"
 
 class BasisGenerator : public BasisGeneratorInterface {
-    bool check_rule(int, int, int) override {
-        return true;
-    };
+public:
+    /**
+     * Checks whether the Fibonacci fusion rules are obeyed for given anyon charges and outcome charge.
+     *
+     * @param anyon1 Anyon charge of the 1st anyon.
+     * @param anyon2 Anyon charge of the 2nd anyon.
+     * @param outcome Anyon charge of the fusion result.
+     * @return True if the Fibonacci fusion rules are obeyed, False otherwise.
+     */
+    bool check_rule(int anyon1, int anyon2, int outcome) override {
+        if (anyon1 && anyon2) {
+            return true;
+        } else if ((anyon1 || anyon2) && outcome == 1) {
+            return true;
+        } else if (!(anyon1 || anyon2) && outcome == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     bool check_outcomes(std::vector<int>) override {
         return true;
