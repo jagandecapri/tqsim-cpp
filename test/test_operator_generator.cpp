@@ -129,3 +129,28 @@ TEST(LFunctionTest, TestCases) {
 
     // Test case 2: Add more test cases as needed.
 }
+
+// Test case for the S function
+TEST(SFunctionTest, TestCases) {
+    OperatorGenerator operator_generator = OperatorGenerator();
+    // Test case 1
+    int jm_case1 = 0;
+    int jmo_case1 = 1;
+    int jmoo_case1 = 0;
+    int jmocase1 = 0;
+    int h_case1 = 0;
+    int i_case1 = 1;
+    int icase1 = 0;
+    std::vector<int> jj_case1 = {0, 1};
+    std::vector<int> jjcase1 = {1, 0};
+
+    std::complex<double> result_case1 = operator_generator.S(jm_case1, jmo_case1, jmoo_case1, jmocase1, h_case1,
+                                                             icase1, i_case1, jjcase1, jj_case1);
+
+    // You need to define the expected result for the test case based on your implementation.
+    // For example:
+    std::complex<double> expected_case1(0, 0);
+    EXPECT_EQ(result_case1, expected_case1);
+
+    // Test case 2: Add more test cases as needed.
+}
