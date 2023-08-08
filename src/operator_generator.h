@@ -27,7 +27,7 @@ private:
                                            const State &) = 0;
 
 public:
-    virtual Sigma generate_braiding_operator(int, int, int) = 0;
+    virtual Eigen::MatrixXcd generate_braiding_operator(int, int, int) = 0;
 };
 
 #endif //TQSIM_CPP_OPERATOR_GENERATOR_H

@@ -187,13 +187,11 @@ TEST(GenerateBraidingOperator, TestCases) {
     int nb_qudits_case1 = 1;
     int nb_anyons_per_qudit_case1 = 2;
 
-    Sigma expected_case1 = {
-            {std::complex<double>(-0.8090169943749473, -0.5877852522924732), std::complex<double>(-0, 0)},
-            {std::complex<double>(0, 0),                                     std::complex<double>(-0.30901699437494734,
-                                                                                                  0.9510565162951536)},
-    };
+    Eigen::MatrixXcd expected_case1(2, 2);
+    expected_case1 << std::complex<double>(-0.8090169943749473, -0.5877852522924732), std::complex<double>(-0, 0),
+            std::complex<double>(0, 0), std::complex<double>(-0.30901699437494734, 0.9510565162951536);
 
-    Sigma result_case1 = operator_generator.generate_braiding_operator(index_case1, nb_qudits_case1,
-                                                                       nb_anyons_per_qudit_case1);
+    Eigen::MatrixXcd result_case1 = operator_generator.generate_braiding_operator(index_case1, nb_qudits_case1,
+                                                                                  nb_anyons_per_qudit_case1);
     EXPECT_EQ(result_case1, expected_case1);
 }

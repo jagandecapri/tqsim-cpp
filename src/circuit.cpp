@@ -18,7 +18,7 @@ private:
     Basis basis;
     size_t dim;
     Eigen::VectorXcd initial_state;
-    Sigma sigmas;
+    std::vector<Eigen::MatrixXcd> sigmas;
     Eigen::MatrixXcd unitary;
 public:
     Circuit(int nb_qudits, int nb_anyons_per_qudit) :
@@ -27,12 +27,12 @@ public:
             measured(false) {
         basis_generator = new BasisGenerator();
         operator_generator = new OperatorGenerator(basis_generator);
-        basis = generate_basis();
         dim = basis.size();
         initial_state = Eigen::VectorXcd::Zero(dim);
         initial_state(0) = 1.0;
-        sigmas = get_sigmas();
         unitary = Eigen::MatrixXcd::Identity(dim, dim);
+        this->generate_basis();
+        this->get_sigmas();
     }
 
     int get_nb_qudits() override {
@@ -51,17 +51,24 @@ public:
         return basis;
     }
 
-    Sigma get_braiding_operators() override {
+    vector<Eigen::MatrixXcd> get_braiding_operators() override {
         return sigmas;
     }
 
-    Basis generate_basis() {
-        basis = basis_generator->generate_basis(nb_qudits, nb_anyons_per_qudit);
-        return basis;
+    void generate_basis() {
+        this->basis = basis_generator->generate_basis(nb_qudits, nb_anyons_per_qudit);
     }
 
     Sigma get_sigmas() {
+        std::vector<Eigen::MatrixXcd> sigmas;
+        sigmas.reserve(nb_anyons - 1); // Reserve space for sigmas
 
+        for (int index = 1; index < nb_anyons; ++index) {
+            Eigen::MatrixXcd sigma = this->operator_generator->generate_braiding_operator(
+                    index, nb_qudits, nb_anyons_per_qudit
+            );
+            sigmas.push_back(sigma);
+        }
     }
 
     void initialize() override {

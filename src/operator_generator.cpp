@@ -377,15 +377,18 @@ public:
  * @param nb_anyons_per_qudit Number of anyons in each qudit.
  * @return Matrix representation of the braiding operator as a list of lists (sigmas).
  */
-    Sigma generate_braiding_operator(int index, int nb_qudits, int nb_anyons_per_qudit) override {
+    Eigen::MatrixXcd generate_braiding_operator(int index, int nb_qudits, int nb_anyons_per_qudit) override {
         // Generate the basis states
         Basis basis = this->basis_generator->generate_basis(nb_qudits, nb_anyons_per_qudit);
 
-        Sigma sigma;
-        for (size_t f = 0; f < basis.size(); ++f) {
-            sigma.emplace_back();
-            for (const auto &base_i: basis) {
-                sigma[f].push_back(this->gen_sigma(index, base_i, basis[f]));
+        size_t basisSize = basis.size();
+        Eigen::MatrixXcd sigma(basisSize, basisSize);
+
+        for (size_t f = 0; f < basisSize; ++f) {
+            auto f_index = static_cast<Eigen::Index> (f);
+            for (size_t base_i = 0; base_i < basisSize; ++base_i) {
+                auto base_i_index = static_cast<Eigen::Index> (base_i);
+                sigma(f_index, base_i_index) = gen_sigma(index, basis[base_i], basis[f]);
             }
         }
 

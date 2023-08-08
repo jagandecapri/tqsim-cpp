@@ -18,7 +18,7 @@ public:
 
     virtual Basis get_basis() = 0;
 
-    virtual Sigma get_braiding_operators() = 0;
+    virtual std::vector<Eigen::MatrixXcd> get_braiding_operators() = 0;
 
     virtual void initialize() = 0;
 
