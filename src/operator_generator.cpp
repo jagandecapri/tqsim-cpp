@@ -8,17 +8,17 @@
 #include <Eigen/Dense>
 #include "container.h"
 #include "operator_generator.h"
-#include "basis_generator.cpp"
+#include "basis_generator.h"
 
 class OperatorGenerator : public OperatorGeneratorInterface {
-    BasisGenerator basis_generator;
+    BasisGeneratorInterface *basis_generator;
 public:
     OperatorGenerator() {
 
     }
 
-    explicit OperatorGenerator(BasisGenerator basis_generator) {
-        this->basis_generator = std::move(basis_generator);
+    explicit OperatorGenerator(BasisGeneratorInterface *basis_generator) {
+        this->basis_generator = basis_generator;
     }
 
     /**
@@ -379,7 +379,7 @@ public:
  */
     Sigma generate_braiding_operator(int index, int nb_qudits, int nb_anyons_per_qudit) override {
         // Generate the basis states
-        Basis basis = this->basis_generator.generate_basis(nb_qudits, nb_anyons_per_qudit);
+        Basis basis = this->basis_generator->generate_basis(nb_qudits, nb_anyons_per_qudit);
 
         Sigma sigma;
         for (size_t f = 0; f < basis.size(); ++f) {
