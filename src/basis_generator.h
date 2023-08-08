@@ -8,6 +8,7 @@
 #define TQSIM_CPP_BASIS_GENERATOR_H
 
 class BasisGeneratorInterface {
+private:
     virtual bool check_rule(int, int, int) = 0;
 
     virtual bool check_outcomes(std::vector<int>) = 0;
@@ -16,6 +17,7 @@ class BasisGeneratorInterface {
 
     virtual State gen_state(const std::vector<int> &, int, int) = 0;
 
+public:
     virtual Basis generate_basis(int, int) = 0;
 };
 
