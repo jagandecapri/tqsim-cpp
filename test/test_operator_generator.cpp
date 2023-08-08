@@ -5,8 +5,9 @@
 #include <cmath>
 #include <Eigen/Dense>
 #include <gtest/gtest.h>
-#include <container.h>
-#include <operator_generator.cpp>
+#include "container.h"
+#include "operator_generator.cpp"
+#include "basis_generator.cpp"
 
 
 /**
@@ -179,7 +180,7 @@ TEST(GenSigmaFunctionTest, TestCases) {
 }
 
 TEST(GenerateBraidingOperator, TestCases) {
-    BasisGenerator basis_generator = BasisGenerator();
+    BasisGeneratorInterface *basis_generator = new BasisGenerator();
     OperatorGenerator operator_generator = OperatorGenerator(basis_generator);
 
     int index_case1 = 1;

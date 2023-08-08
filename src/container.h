@@ -20,4 +20,6 @@ struct State {
 typedef std::vector<State> Basis;
 
 typedef std::vector<std::vector<std::complex<double>>> Sigma;
+
+typedef std::vector<std::vector<int>> Sequence;
 #endif //TQSIM_CPP_BASIS_H
