@@ -8,7 +8,7 @@
 #define TQSIM_CPP_OPERATOR_GENERATOR_H
 
 class OperatorGeneratorInterface {
-public:
+private:
     virtual Eigen::Matrix<double, 2, 2> F(int, int, int, int) = 0;
 
     virtual Eigen::Matrix<std::complex<double>, 2, 2> R(int, int) = 0;
@@ -26,6 +26,7 @@ public:
                                            const State &,
                                            const State &) = 0;
 
+public:
     virtual Sigma generate_braiding_operator(int, int, int) = 0;
 };
 
