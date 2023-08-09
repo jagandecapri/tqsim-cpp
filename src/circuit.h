@@ -18,23 +18,23 @@ public:
 
     virtual Basis get_basis() = 0;
 
+    virtual std::vector<std::tuple<int, int>> get_braids_history() = 0;
+
     virtual std::vector<Eigen::MatrixXcd> get_braiding_operators() = 0;
+
+    virtual Eigen::MatrixXcd get_unitary() = 0;
 
     virtual CircuitInterface &initialize(const Eigen::VectorXcd &) = 0;
 
     virtual CircuitInterface &braid(int, int) = 0;
 
-    virtual void braid_sequence(Sequence &) = 0;
+    virtual CircuitInterface &braid_sequence(Sequence &) = 0;
 
-    virtual void measure() = 0;
+    virtual CircuitInterface &measure() = 0;
 
-    virtual std::string history(std::string) = 0;
+    virtual Eigen::VectorXcd statevector() = 0;
 
-    virtual Eigen::MatrixXd statevector() = 0;
-
-    virtual void run(int) = 0;
-
-    void print();
+    virtual std::map<int, int> run(int) = 0;
 };
 
 #endif // CIRCUIT_H

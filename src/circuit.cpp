@@ -1,4 +1,5 @@
-#include <iostream>
+#include <map>
+#include <random>
 #include "circuit.h"
 #include "utils.h"
 #include "operator_generator.cpp"
@@ -53,8 +54,16 @@ public:
         return basis;
     }
 
+    std::vector<std::tuple<int, int>> get_braids_history() override {
+        return braids_history;
+    }
+
     vector<Eigen::MatrixXcd> get_braiding_operators() override {
         return sigmas;
+    }
+
+    Eigen::MatrixXcd get_unitary() override {
+        return unitary;
     }
 
     void generate_basis() {
@@ -139,28 +148,104 @@ public:
 
     }
 
-    void braid_sequence(Sequence &sequence) override {
+/**
+     * Takes a sequence of [sigma operator, power], and applies the successive operators to the 'power'.
+     * The first operator in the sequence is the first to be applied.
+     *
+     * @param braid A sequence of pairs of integers representing a braiding operator
+     *              and an exponent.
+     *
+     * @throws std::invalid_argument Is thrown if one of the operators' indices is not an integer
+     *                               greater or equal to 1, or is an incorrect index.
+     *
+     * @return A reference to the same circuit.
+     */
+    Circuit &braid_sequence(Sequence &braid) override {
+        for (const auto &step: braid) {
+            if (step.size() != 2 ||
+                !std::all_of(step.begin(), step.end(), [](int val) { return std::is_integral<int>::value; })) {
+                throw std::invalid_argument("Indices and powers must be integers!");
+            }
 
+            int ind = step[0];
+            int power = step[1];
+
+            if (ind < 1 || ind >= nb_anyons) {
+                throw std::invalid_argument("Invalid braiding operator index!");
+            }
+
+            // Computing m and n
+            int m = 0, n = 0;
+            if (power > 0) {
+                n = ind;
+                m = ind + 1;
+            } else if (power < 0) {
+                m = ind;
+                n = ind + 1;
+            } else {  // if power=0, do nothing (identity)
+                continue;
+            }
+
+            for (int _ = 0; _ < std::abs(power); ++_) {
+                this->braid(n, m); // Assuming the braid function exists
+            }
+        }
+
+        return *this;
     }
 
-    void measure() override {
-
+    Circuit &measure() override {
+        if (this->measured) {
+            throw std::runtime_error("Cannot carry the measurements twice!");
+        }
+        this->measured = true;
+        // Assuming drawer.measure function exists
+        // drawer.measure();
+        return *this;
     }
 
-    std::string history(std::string) override {
+    // Constructor and other methods
 
+    /**
+     * Computes and returns the current state vector of the circuit.
+     *
+     * @return Eigen::VectorXcd The state vector of the circuit.
+     */
+    Eigen::VectorXcd statevector() override {
+        return unitary * initial_state;
     }
 
-    Eigen::MatrixXd statevector() override {
+    /**
+* Simulates the quantum circuit for a specified number of shots and returns the measurement results.
+*
+* @param shots Number of times the circuit is simulated.
+* @return std::map<int, int> Contains the number of measurements for each measured state.
+* @throws std::runtime_error Is thrown if the circuit is run without a measurement.
+*/
+    std::map<int, int> run(int shots = 1000) override {
+        if (!measured) {
+            throw std::runtime_error("The system was not measured!");
+        }
 
-    }
+        Eigen::VectorXcd statevector = this->statevector();
+        Eigen::VectorXd probs = (statevector * statevector.conjugate()).real();
+        std::discrete_distribution<int> distribution(probs.data(), probs.data() + probs.size());
 
-    void run(int) override {
+        // Create a random number generator
+        std::random_device rd;
+        std::mt19937 generator(rd());
 
-    }
+        std::vector<int> memory(shots);
+        for (int i = 0; i < shots; ++i) {
+            memory[i] = distribution(generator);
+        }
 
-    void print() {
-        cout << "nb_qudits = " << nb_qudits << " nb_anyons_per_qudit = " << nb_anyons_per_qudit << endl;
+        std::map<int, int> counts_dict;
+        for (int value: memory) {
+            counts_dict[value]++;
+        }
+
+        return counts_dict;
     }
 };
 
