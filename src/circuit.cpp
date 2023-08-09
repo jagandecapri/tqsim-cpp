@@ -30,12 +30,14 @@ public:
             measured(false) {
         basis_generator = new BasisGenerator();
         operator_generator = new OperatorGenerator(basis_generator);
+
+        this->generate_basis();
         dim = basis.size();
         initial_state = Eigen::VectorXcd::Zero(dim);
         initial_state(0) = 1.0;
-        unitary = Eigen::MatrixXcd::Identity(dim, dim);
-        this->generate_basis();
+
         this->get_sigmas();
+        unitary = Eigen::MatrixXcd::Identity(dim, dim);
     }
 
     int get_nb_qudits() override {
