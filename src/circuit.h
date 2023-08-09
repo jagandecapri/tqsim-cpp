@@ -20,9 +20,9 @@ public:
 
     virtual std::vector<Eigen::MatrixXcd> get_braiding_operators() = 0;
 
-    virtual void initialize() = 0;
+    virtual CircuitInterface &initialize(const Eigen::VectorXcd &) = 0;
 
-    virtual void braid(int, int) = 0;
+    virtual CircuitInterface &braid(int, int) = 0;
 
     virtual void braid_sequence(Sequence &) = 0;
 

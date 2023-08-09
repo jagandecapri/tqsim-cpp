@@ -11,6 +11,7 @@ set(SOURCE_FILES
         circuit.cpp
         operator_generator.cpp
         basis_generator.cpp
+        utils.h
 )
 
 add_library(src STATIC ${SOURCE_FILES} ${HEADER_FILES})
