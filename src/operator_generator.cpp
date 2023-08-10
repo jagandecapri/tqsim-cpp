@@ -359,7 +359,7 @@ public:
 
             amplitude += S(jm, jmo, jmoo, jmo_, h, i_, i, jj_, jj);
 
-            if (new_state_i.qudits != state_f.qudits && new_state_i.roots != state_f.roots) {
+            if (new_state_i != state_f) {
                 braket = (0.0, 0.0);
             }
         }

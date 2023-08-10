@@ -195,3 +195,22 @@ TEST(GenerateBraidingOperator, TestCases) {
                                                                                   nb_anyons_per_qudit_case1);
     EXPECT_EQ(result_case1, expected_case1);
 }
+
+TEST(GenerateBraidingOperator1, TestCases) {
+    BasisGeneratorInterface *basis_generator = new BasisGenerator();
+    OperatorGenerator operator_generator = OperatorGenerator(basis_generator);
+
+    int index_case1 = 3;
+    int nb_qudits_case1 = 2;
+    int nb_anyons_per_qudit_case1 = 3;
+
+//    Eigen::MatrixXcd expected_case1(2, 2);
+//    expected_case1 << std::complex<double>(-0.8090169943749473, -0.5877852522924732), std::complex<double>(-0, 0),
+//            std::complex<double>(0, 0), std::complex<double>(-0.30901699437494734, 0.9510565162951536);
+
+    Eigen::MatrixXcd result_case1 = operator_generator.generate_braiding_operator(index_case1, nb_qudits_case1,
+                                                                                  nb_anyons_per_qudit_case1);
+    std::cout << result_case1 << std::endl;
+
+//    EXPECT_EQ(result_case1, expected_case1);
+}

@@ -1,3 +1,4 @@
+#include <iostream>
 #include <map>
 #include <random>
 #include "circuit.h"
@@ -37,6 +38,9 @@ public:
         initial_state(0) = 1.0;
 
         this->get_sigmas();
+//        for (int i = 0; i < sigmas.size(); ++i) {
+//            std::cout << "Sigmas: " << i << " " << sigmas[i] << std::endl;
+//        }
         unitary = Eigen::MatrixXcd::Identity(dim, dim);
     }
 
@@ -109,7 +113,7 @@ public:
         if (Eigen::NumTraits<double>::epsilon() <= std::abs(norm - 1)) {
             throw std::invalid_argument("The input state is not normalized correctly!");
         }
-
+        //std::cout << "Input state: " << input_state << std::endl;
         initial_state = input_state;
 
         return *this;
@@ -133,6 +137,8 @@ public:
             throw std::runtime_error("You can only braid adjacent anyons!");
         }
 
+//        std::cout << "Unitary before modificaition: " << unitary << std::endl;
+
         if (n < m) {
             unitary = sigmas[n - 1] * unitary;
         } else {
@@ -142,6 +148,15 @@ public:
         this->braids_history.emplace_back(n, m);
 
         nb_braids++;
+
+//        std::cout << "n = " << n << " m = " << m << std::endl;
+//        std::cout << "nb_braids: " << nb_braids << std::endl;
+//        if (n < m) {
+//            std::cout << "n<m sigmas: " << sigmas[n - 1] << std::endl;
+//        } else {
+//            std::cout << "n >= m sigmas: " << sigmas[m - 1].adjoint() << std::endl;
+//        }
+//        std::cout << "unitary: " << unitary << std::endl;
 
         // Assuming drawer.braid function exists
         // drawer.braid(m, n);
@@ -192,7 +207,7 @@ public:
                 this->braid(n, m); // Assuming the braid function exists
             }
         }
-
+//        std::cout << "Final unitary: " << unitary << std::endl;
         return *this;
     }
 
@@ -214,6 +229,10 @@ public:
      * @return Eigen::VectorXcd The state vector of the circuit.
      */
     Eigen::VectorXcd statevector() override {
+//        std::cout << "Statevector computation";
+//        std::cout << "Unitary " << unitary << std::endl;
+//        std::cout << "Initial state: " << initial_state << std::endl;
+//        std::cout << "Final state: " << unitary * initial_state << std::endl;
         return unitary * initial_state;
     }
 
@@ -224,13 +243,15 @@ public:
 * @return std::map<int, int> Contains the number of measurements for each measured state.
 * @throws std::runtime_error Is thrown if the circuit is run without a measurement.
 */
-    std::map<int, int> run(int shots = 1000) override {
+    std::map<int, int> run(int shots) override {
         if (!measured) {
             throw std::runtime_error("The system was not measured!");
         }
 
         Eigen::VectorXcd statevector = this->statevector();
-        Eigen::VectorXd probs = (statevector * statevector.conjugate()).real();
+//        std::cout << "Statevector: " << statevector << std::endl;
+        Eigen::VectorXd probs = (statevector.cwiseProduct(statevector.conjugate())).real();
+//        std::cout << "Probs: " << probs << std::endl;
         std::discrete_distribution<int> distribution(probs.data(), probs.data() + probs.size());
 
         // Create a random number generator
