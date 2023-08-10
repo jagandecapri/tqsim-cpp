@@ -321,12 +321,11 @@ TEST(CircuitTest, CircuitTestInit) {
     Circuit circuit = Circuit(2, 3);
     Eigen::VectorXcd init_sequence(13);
     init_sequence << 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-    //std::cout << "init_sequence: " << init_sequence << std::endl;
     circuit.initialize(init_sequence);
     circuit.braid_sequence(had_sequence_2);
     circuit.braid_sequence(cnot_sequence);
     circuit.measure();
     std::map<int, int> res = circuit.run(10000);
     std::cout << "Counts => 0: " << res[0] << ", 1: " << res[1] << std::endl;
-    EXPECT_EQ(1, 1);
+    std::cout << "Probability of 0: " << res[0] / 10000.0 << std::endl;
 }

@@ -207,7 +207,6 @@ public:
                 this->braid(n, m); // Assuming the braid function exists
             }
         }
-//        std::cout << "Final unitary: " << unitary << std::endl;
         return *this;
     }
 
@@ -229,10 +228,6 @@ public:
      * @return Eigen::VectorXcd The state vector of the circuit.
      */
     Eigen::VectorXcd statevector() override {
-//        std::cout << "Statevector computation";
-//        std::cout << "Unitary " << unitary << std::endl;
-//        std::cout << "Initial state: " << initial_state << std::endl;
-//        std::cout << "Final state: " << unitary * initial_state << std::endl;
         return unitary * initial_state;
     }
 
@@ -249,9 +244,7 @@ public:
         }
 
         Eigen::VectorXcd statevector = this->statevector();
-//        std::cout << "Statevector: " << statevector << std::endl;
         Eigen::VectorXd probs = (statevector.cwiseProduct(statevector.conjugate())).real();
-//        std::cout << "Probs: " << probs << std::endl;
         std::discrete_distribution<int> distribution(probs.data(), probs.data() + probs.size());
 
         // Create a random number generator
@@ -271,11 +264,3 @@ public:
         return counts_dict;
     }
 };
-
-// int main(int argc, char const *argv[])
-// {
-//     /* code */
-//     Circuit circuit = Circuit(1);
-//     circuit.print();
-//     return 0;
-// }
