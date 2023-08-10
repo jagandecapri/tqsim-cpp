@@ -1,6 +1,7 @@
 //
 // Created by Jagan on 06/08/2023.
 //
+#include <map>
 #include <complex>
 #include <vector>
 
@@ -25,4 +26,9 @@ struct State {
 typedef std::vector<State> Basis;
 
 typedef std::vector<std::vector<int>> Sequence;
+
+struct Result {
+    std::map<int, int> counts_dict;
+    std::vector<int> memory;
+};
 #endif //TQSIM_CPP_BASIS_H

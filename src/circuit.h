@@ -34,7 +34,7 @@ public:
 
     virtual Eigen::VectorXcd statevector() = 0;
 
-    virtual std::map<int, int> run(int) = 0;
+    virtual Result run(int) = 0;
 };
 
 #endif // CIRCUIT_H

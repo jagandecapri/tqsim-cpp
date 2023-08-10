@@ -238,7 +238,7 @@ public:
 * @return std::map<int, int> Contains the number of measurements for each measured state.
 * @throws std::runtime_error Is thrown if the circuit is run without a measurement.
 */
-    std::map<int, int> run(int shots) override {
+    Result run(int shots) override {
         if (!measured) {
             throw std::runtime_error("The system was not measured!");
         }
@@ -261,6 +261,7 @@ public:
             counts_dict[value]++;
         }
 
-        return counts_dict;
+        Result result = {counts_dict, memory};
+        return result;
     }
 };
