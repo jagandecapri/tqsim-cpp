@@ -4,6 +4,7 @@
 #include "iostream"
 #include "gtest/gtest.h"
 #include "circuit.cpp"
+#include <chrono>
 
 
 class TestCircuit : public ::testing::Test {
@@ -318,6 +319,9 @@ TEST(CircuitTest, CircuitTestInit) {
                               {4, -1},
                               {3, -1}};
 
+    // Start the timer
+    auto start = std::chrono::high_resolution_clock::now();
+
     Circuit circuit = Circuit(2, 3);
     Eigen::VectorXcd init_sequence(13);
     init_sequence << 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -325,7 +329,18 @@ TEST(CircuitTest, CircuitTestInit) {
     circuit.braid_sequence(had_sequence_2);
     circuit.braid_sequence(cnot_sequence);
     circuit.measure();
-    std::map<int, int> res = circuit.run(10000);
-    std::cout << "Counts => 0: " << res[0] << ", 1: " << res[1] << std::endl;
-    std::cout << "Probability of 0: " << res[0] / 10000.0 << std::endl;
+    Result res = circuit.run(1000000);
+
+    // Stop the timer
+    auto end = std::chrono::high_resolution_clock::now();
+
+    // Calculate the elapsed time
+    std::chrono::duration<double> elapsed = end - start;
+
+    // Output the elapsed time in seconds
+    std::cout << "Elapsed time: " << elapsed.count() << " seconds" << std::endl;
+    
+    for (auto &count: res.counts_dict) {
+        std::cout << count.first << ": " << count.second << std::endl;
+    }
 }
