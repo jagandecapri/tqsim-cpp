@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(tqsim-cpp VERSION 0.1.0 LANGUAGES CXX)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O0 -fno-omit-frame-pointer")
+#set(CMAKE_OSX_ARCHITECTURES "arm64")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 include(CTest)
