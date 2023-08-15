@@ -313,7 +313,8 @@ int main(int, char **) {
     circuit.braid_sequence(had_sequence_2);
     circuit.braid_sequence(cnot_sequence);
     circuit.measure();
-    Result res = circuit.run(10000);
+    int shots = 100000000;
+    Result res = circuit.run(shots);
     // Stop the timer
     auto end = std::chrono::high_resolution_clock::now();
 
@@ -321,6 +322,7 @@ int main(int, char **) {
     std::chrono::duration<double> elapsed = end - start;
 
     // Output the elapsed time in seconds
+    std::cout << "Number of shots: " << shots << std::endl;
     std::cout << "Elapsed time: " << elapsed.count() << " seconds" << std::endl;
     for (auto &count: res.counts_dict) {
         std::cout << count.first << ": " << count.second << std::endl;
