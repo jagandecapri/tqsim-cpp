@@ -11,4 +11,8 @@ No drawing functionality is implemented as it is more friendly to be implemented
 Engineering improvements can be done to parallelize random number generation which takes the most time when program is
 profiled.
 
-Potentially bigger improvement can be done by using better data structures.
+Potentially bigger improvement can be done by using better data structures as quoted from the paper:
+
+> it is important to note that this method does not guarantee
+> a reduction in computational complexity since the size of the braid generator grows exponentially with the number
+> of anyons
