@@ -29,6 +29,7 @@ private:
   Eigen::MatrixXcd unitary;
 
 public:
+  Circuit() = default;
   Circuit(int nb_qudits, int nb_anyons_per_qudit);
 
   int get_nb_qudits() { return nb_qudits; }

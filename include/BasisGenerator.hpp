@@ -23,7 +23,7 @@ public:
    * @param outcomes List of outcomes.
    * @return True if all outcomes obey the rule, False otherwise.
    */
-  bool check_outcomes(std::vector<int> outcomes);
+  bool check_outcomes(const std::vector<int>& outcomes);
 
   /**
    * Checks whether the state obeys specific rules.

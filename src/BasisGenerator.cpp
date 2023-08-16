@@ -1,28 +1,29 @@
 #include "BasisGenerator.hpp"
 
 bool BasisGenerator::check_rule(int anyon1, int anyon2, int outcome) {
-  if (anyon1 && anyon2) {
+  if (anyon1 != 0 && anyon2 != 0) {
     return true;
-  } else if ((anyon1 || anyon2) && outcome == 1) {
-    return true;
-  } else if (!(anyon1 || anyon2) && outcome == 0) {
-    return true;
-  } else {
-    return false;
   }
+
+  if ((anyon1 != 0 || anyon2 != 0) && outcome == 1) {
+    return true;
+  }
+
+  if (anyon1 == 0 && anyon2 == 0 && outcome == 0) {
+    return true;
+  }
+  return false;
 }
 
-bool BasisGenerator::check_outcomes(std::vector<int> outcomes) {
+bool BasisGenerator::check_outcomes(const std::vector<int>& outcomes) {
   int previousOutcome = 1;
-
-  for (int outcome : outcomes) {
-    if (this->check_rule(previousOutcome, 1, outcome)) {
+  for (const auto outcome : outcomes) {
+    if (check_rule(previousOutcome, 1, outcome)) {
       previousOutcome = outcome;
     } else {
       return false;
     }
   }
-
   return true;
 }
 
@@ -86,9 +87,9 @@ Basis BasisGenerator::generate_basis(int nb_qudits, int nb_anyons_per_qudit) {
   std::vector<int> curr_comb(nb_labels, 0);
   std::vector<int> final_comb(nb_labels, 1);
 
-  State curr_state = this->gen_state(curr_comb, nb_qudits, qudit_len);
+  State curr_state = gen_state(curr_comb, nb_qudits, qudit_len);
 
-  if (this->check_state(curr_state)) {
+  if (check_state(curr_state)) {
     basis.push_back(curr_state);
   }
 
@@ -97,14 +98,13 @@ Basis BasisGenerator::generate_basis(int nb_qudits, int nb_anyons_per_qudit) {
       if (curr_comb[i] == 0) {
         curr_comb[i] = 1;
         break;
-      } else {
-        curr_comb[i] = 0;
       }
+      curr_comb[i] = 0;
     }
 
-    curr_state = this->gen_state(curr_comb, nb_qudits, qudit_len);
+    curr_state = gen_state(curr_comb, nb_qudits, qudit_len);
 
-    if (this->check_state(curr_state)) {
+    if (check_state(curr_state)) {
       basis.push_back(curr_state);
     }
   }

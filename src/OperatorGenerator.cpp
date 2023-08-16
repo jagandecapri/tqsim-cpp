@@ -59,10 +59,10 @@ Eigen::Matrix<std::complex<double>, 2, 2> OperatorGenerator::R(int a1, int a2) {
 Eigen::Matrix<std::complex<double>, 2, 2>
 OperatorGenerator::B(int a0, int a1, int a2, int outcome) {
   // Compute the intermediate matrices
-  Eigen::Matrix<double, 2, 2> f_result = this->F(a0, a1, a2, outcome);
-  Eigen::Matrix<std::complex<double>, 2, 2> r_result = this->R(a1, a2);
+  Eigen::Matrix<double, 2, 2> f_result = F(a0, a1, a2, outcome);
+  Eigen::Matrix<std::complex<double>, 2, 2> r_result = R(a1, a2);
   Eigen::Matrix<double, 2, 2> f_transpose_conjugate_result =
-      this->F(a0, a2, a1, outcome).transpose().conjugate();
+      F(a0, a2, a1, outcome).transpose().conjugate();
 
   // Compute the braid matrix using Eigen matrix operations
   Eigen::Matrix<std::complex<double>, 2, 2> b_matrix =
@@ -97,7 +97,7 @@ std::complex<double> OperatorGenerator::sigma(int index,
   int a = stt_i[index - 1];
   int b = stt_f[index - 1];
   Eigen::Matrix<std::complex<double>, 2, 2> b_matrix =
-      this->B(a0, 1, 1, outcome);
+      B(a0, 1, 1, outcome);
   std::complex<double> amplitude = b_matrix(a, b);
 
   std::vector<int> ket = stt_i;
@@ -275,7 +275,7 @@ OperatorGenerator::generate_braiding_operator(int index, int nb_qudits,
                                               int nb_anyons_per_qudit) {
   // Generate the basis states
   Basis basis =
-      this->basis_generator->generate_basis(nb_qudits, nb_anyons_per_qudit);
+      basis_generator->generate_basis(nb_qudits, nb_anyons_per_qudit);
 
   size_t basisSize = basis.size();
   Eigen::MatrixXcd sigma(basisSize, basisSize);
