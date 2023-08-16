@@ -1,29 +1,27 @@
 //
 // Created by Jagan on 05/08/2023.
 //
-#include "circuit.hpp"
+#include "Circuit.hpp"
 
 #include <gtest/gtest.h>
 #include <iostream>
 
 class TestCircuit : public ::testing::Test {
 protected:
-  Circuit* circuit;
-
-  virtual void SetUp() { circuit = new Circuit(2, 3); }
-
-  virtual void TearDown() { delete circuit; }
+  Circuit circuit;
+public:
+  void SetUp() override { circuit = Circuit(2, 3); }
 };
 
 // Tests factorial of 0.
-TEST(CircuitTest, CircuitTestInit) {
+TEST_F(TestCircuit, CircuitTestInit) {
   // H_2
-  Sequence had_sequence_2 = {{4, 2}, {5, 2},  {4, -2}, {5, -2}, {4, 2},
+  Sequence hadSequence2 = {{4, 2}, {5, 2},  {4, -2}, {5, -2}, {4, 2},
                              {5, 4}, {4, -2}, {5, 2},  {4, 2},  {5, -2},
                              {4, 2}, {5, -2}, {4, 4}};
 
   // CNOT_2->1
-  Sequence cnot_sequence = {
+  Sequence cnotSequence = {
       {3, 1},  {4, 1},  {4, 1},  {3, 1},  {3, 1},  {4, 1},  {2, -1}, {3, -1},
       {3, -1}, {2, -1}, {4, -1}, {3, -1}, {3, -1}, {4, -1}, {4, -1}, {3, -1},
       {3, -1}, {4, -1}, {2, 1},  {3, 1},  {3, 1},  {2, 1},  {4, 1},  {3, 1},
@@ -60,16 +58,15 @@ TEST(CircuitTest, CircuitTestInit) {
       {3, 1},  {4, 1},  {4, 1},  {3, 1},  {3, 1},  {4, 1},  {2, 1},  {3, 1},
       {3, 1},  {2, 1},  {4, -1}, {3, -1}, {3, -1}, {4, -1}, {4, -1}, {3, -1}};
 
-  Circuit circuit = Circuit(2, 3);
-  Eigen::VectorXcd init_sequence(13);
-  init_sequence << 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-  circuit.initialize(init_sequence);
-  circuit.braid_sequence(had_sequence_2);
-  circuit.braid_sequence(cnot_sequence);
+  Eigen::VectorXcd initSequence(13);
+  initSequence << 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+  circuit.initialize(initSequence);
+  circuit.braid_sequence(hadSequence2);
+  circuit.braid_sequence(cnotSequence);
   circuit.measure();
-  Result res = circuit.run(1000000);
+  const auto res = circuit.run(1000000);
 
-  for (auto& count : res.counts_dict) {
-    std::cout << count.first << ": " << count.second << std::endl;
+  for (const auto& [result, count] : res.counts_dict) {
+    std::cout << result << ": " << count << "\n";
   }
 }
