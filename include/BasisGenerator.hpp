@@ -1,8 +1,10 @@
 #pragma once
 
-#include "BasisGeneratorInterface.hpp"
+#include "container.hpp"
 
-class BasisGenerator : public BasisGeneratorInterface {
+#include <vector>
+
+class BasisGenerator {
 public:
   /**
    * Checks whether the Fibonacci fusion rules are obeyed for given anyon
@@ -13,7 +15,7 @@ public:
    * @param outcome Anyon charge of the fusion result.
    * @return True if the Fibonacci fusion rules are obeyed, False otherwise.
    */
-  bool check_rule(int anyon1, int anyon2, int outcome) override;
+  bool check_rule(int anyon1, int anyon2, int outcome);
 
   /**
    * Checks whether the list of outcomes obeys a specific rule.
@@ -21,7 +23,7 @@ public:
    * @param outcomes List of outcomes.
    * @return True if all outcomes obey the rule, False otherwise.
    */
-  bool check_outcomes(std::vector<int> outcomes) override;
+  bool check_outcomes(std::vector<int> outcomes);
 
   /**
    * Checks whether the state obeys specific rules.
@@ -29,10 +31,9 @@ public:
    * @param state Input state represented by a Basis struct.
    * @return True if the state obeys the rules, False otherwise.
    */
-  bool check_state(const State& state) override;
+  bool check_state(const State& state);
 
-  State gen_state(const std::vector<int>& comb, int nb_qudits,
-                  int qudit_len) override;
+  State gen_state(const std::vector<int>& comb, int nb_qudits, int qudit_len);
 
   /**
    * Generate all the basis states for a system of a given number of qudits
@@ -42,5 +43,5 @@ public:
    * @param nb_anyons_per_qudit Number of anyons in each qudit.
    * @return A list of basis states represented by a vector of State objects.
    */
-  Basis generate_basis(int nb_qudits, int nb_anyons_per_qudit) override;
+  Basis generate_basis(int nb_qudits, int nb_anyons_per_qudit);
 };

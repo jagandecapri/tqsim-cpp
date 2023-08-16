@@ -1,22 +1,18 @@
 #pragma once
 
-#include "BasisGeneratorInterface.hpp"
-#include "OperatorGeneratorInterface.hpp"
+#include "BasisGenerator.hpp"
 #include "container.hpp"
 
 #include <Eigen/Dense>
-#include <complex>
-#include <stdexcept> // For std::invalid_argument
-#include <utility>
 #include <vector>
 
-class OperatorGenerator : public OperatorGeneratorInterface {
-  BasisGeneratorInterface* basis_generator;
+class OperatorGenerator {
+  BasisGenerator* basis_generator;
 
 public:
   OperatorGenerator() = default;
 
-  explicit OperatorGenerator(BasisGeneratorInterface* generator)
+  explicit OperatorGenerator(BasisGenerator* generator)
       : basis_generator(generator) {}
 
   /**
@@ -32,7 +28,7 @@ public:
    * @param outcome Integer parameter outcome.
    * @return Eigen::Matrix<double, 2, 2> The F matrix.
    */
-  Eigen::Matrix<double, 2, 2> F(int a1, int a2, int a3, int outcome) override;
+  Eigen::Matrix<double, 2, 2> F(int a1, int a2, int a3, int outcome);
 
   /**
    * @brief Calculates the R matrix based on input values.
@@ -45,7 +41,7 @@ public:
    * @param a2 Integer parameter a2.
    * @return Eigen::Matrix<std::complex<double>, 2, 2> The R matrix.
    */
-  Eigen::Matrix<std::complex<double>, 2, 2> R(int a1, int a2) override;
+  Eigen::Matrix<std::complex<double>, 2, 2> R(int a1, int a2);
 
   /**
    * @brief Calculates the B matrix based on input values.
@@ -58,7 +54,7 @@ public:
    *  @return b_matrix The braid matrix computed using Eigen.
    */
   Eigen::Matrix<std::complex<double>, 2, 2> B(int a0, int a1, int a2,
-                                              int outcome) override;
+                                              int outcome);
 
   /**
    * Amplitude of getting state_f by applying the braiding operator
@@ -74,7 +70,7 @@ public:
    * equal to 0, or greater than the size of state_i).
    */
   std::complex<double> sigma(int index, const std::vector<int>& state_f,
-                             const std::vector<int>& state_i) override;
+                             const std::vector<int>& state_i);
 
   /**
    * L matrix component used in the calculation of braiding between two anyons
@@ -91,7 +87,7 @@ public:
    */
   std::complex<double> L(int k, int h, int i_, int i,
                          const std::vector<int>& jj_,
-                         const std::vector<int>& jj) override;
+                         const std::vector<int>& jj);
 
   /**
    * S matrix or sewing matrix used in the calculation of the braiding operator
@@ -111,7 +107,7 @@ public:
    */
   std::complex<double> S(int jm, int jmo, int jmoo, int jmo_, int h, int i_,
                          int i, const std::vector<int>& jj_,
-                         const std::vector<int>& jj) override;
+                         const std::vector<int>& jj);
 
   /**
    * Generate the Sigma matrix component used in the calculation of the braiding
@@ -129,7 +125,7 @@ public:
    * @return The Sigma matrix component.
    */
   std::complex<double> gen_sigma(int index, const State& state_i,
-                                 const State& state_f) override;
+                                 const State& state_f);
 
   /**
    * Generate the braiding operator of index 'index' for a system of
@@ -143,5 +139,5 @@ public:
    * (sigmas).
    */
   Eigen::MatrixXcd generate_braiding_operator(int index, int nb_qudits,
-                                              int nb_anyons_per_qudit) override;
+                                              int nb_anyons_per_qudit);
 };

@@ -7,12 +7,12 @@ Circuit::Circuit(int nb_qudits, int nb_anyons_per_qudit)
   basis_generator = new BasisGenerator();
   operator_generator = new OperatorGenerator(basis_generator);
 
-  this->generate_basis();
+  generate_basis();
   dim = basis.size();
   initial_state = Eigen::VectorXcd::Zero(dim);
   initial_state(0) = 1.0;
 
-  this->get_sigmas();
+  get_sigmas();
   //        for (int i = 0; i < sigmas.size(); ++i) {
   //            std::cout << "Sigmas: " << i << " " << sigmas[i] << std::endl;
   //        }
@@ -20,21 +20,20 @@ Circuit::Circuit(int nb_qudits, int nb_anyons_per_qudit)
 }
 
 void Circuit::generate_basis() {
-  this->basis = basis_generator->generate_basis(nb_qudits, nb_anyons_per_qudit);
+  basis = basis_generator->generate_basis(nb_qudits, nb_anyons_per_qudit);
 }
 
 void Circuit::get_sigmas() {
-  this->sigmas.reserve(nb_anyons - 1); // Reserve space for sigmas
+  sigmas.reserve(nb_anyons - 1); // Reserve space for sigmas
 
   for (int index = 1; index < nb_anyons; ++index) {
-    Eigen::MatrixXcd sigma =
-        this->operator_generator->generate_braiding_operator(
-            index, nb_qudits, nb_anyons_per_qudit);
-    this->sigmas.push_back(sigma);
+    Eigen::MatrixXcd sigma = operator_generator->generate_braiding_operator(
+        index, nb_qudits, nb_anyons_per_qudit);
+    sigmas.push_back(sigma);
   }
 }
 
-CircuitInterface& Circuit::initialize(const Eigen::VectorXcd& input_state) {
+void Circuit::initialize(const Eigen::VectorXcd& input_state) {
   if (nb_braids > 0) {
     throw InitializationException("Initialization should happen before any "
                                   "braiding operation is performed!");
@@ -51,11 +50,9 @@ CircuitInterface& Circuit::initialize(const Eigen::VectorXcd& input_state) {
   }
   // std::cout << "Input state: " << input_state << std::endl;
   initial_state = input_state;
-
-  return *this;
 }
 
-CircuitInterface& Circuit::braid(int n, int m) {
+void Circuit::braid(int n, int m) {
   if (measured) {
     throw std::runtime_error(
         "System already measured! Cannot perform further braiding!");
@@ -84,7 +81,7 @@ CircuitInterface& Circuit::braid(int n, int m) {
     unitary = sigmas[m - 1].adjoint() * unitary;
   }
 
-  this->braids_history.emplace_back(n, m);
+  braids_history.emplace_back(n, m);
 
   nb_braids++;
 
@@ -100,12 +97,10 @@ CircuitInterface& Circuit::braid(int n, int m) {
 
   // Assuming drawer.braid function exists
   // drawer.braid(m, n);
-
-  return *this;
 }
 
-Circuit& Circuit::braid_sequence(Sequence& braid) {
-  for (const auto& step : braid) {
+void Circuit::braid_sequence(Sequence& braid_sequence) {
+  for (const auto& step : braid_sequence) {
     if (step.size() != 2 || !std::all_of(step.begin(), step.end(), [](int val) {
           return std::is_integral<int>::value;
         })) {
@@ -132,20 +127,18 @@ Circuit& Circuit::braid_sequence(Sequence& braid) {
     }
 
     for (int _ = 0; _ < std::abs(power); ++_) {
-      this->braid(n, m); // Assuming the braid function exists
+      braid(n, m); // Assuming the braid function exists
     }
   }
-  return *this;
 }
 
-Circuit& Circuit::measure() {
-  if (this->measured) {
+void Circuit::measure() {
+  if (measured) {
     throw std::runtime_error("Cannot carry the measurements twice!");
   }
-  this->measured = true;
+  measured = true;
   // Assuming drawer.measure function exists
   // drawer.measure();
-  return *this;
 }
 
 Result Circuit::run(int shots) {
@@ -153,9 +146,8 @@ Result Circuit::run(int shots) {
     throw std::runtime_error("The system was not measured!");
   }
 
-  Eigen::VectorXcd statevector = this->statevector();
-  Eigen::VectorXd probs =
-      (statevector.cwiseProduct(statevector.conjugate())).real();
+  Eigen::VectorXcd sv = statevector();
+  Eigen::VectorXd probs = (sv.cwiseProduct(sv.conjugate())).real();
   std::discrete_distribution<int> distribution(probs.data(),
                                                probs.data() + probs.size());
 

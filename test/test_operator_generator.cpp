@@ -183,8 +183,8 @@ TEST(GenSigmaFunctionTest, TestCases) {
 }
 
 TEST(GenerateBraidingOperator, TestCases) {
-  BasisGeneratorInterface* basis_generator = new BasisGenerator();
-  OperatorGenerator operator_generator = OperatorGenerator(basis_generator);
+  BasisGenerator basis_generator = BasisGenerator();
+  OperatorGenerator operator_generator = OperatorGenerator(&basis_generator);
 
   int index_case1 = 1;
   int nb_qudits_case1 = 1;

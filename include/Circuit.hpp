@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BasisGenerator.hpp"
-#include "CircuitInterface.hpp"
+#include "Circuit.hpp"
 #include "OperatorGenerator.hpp"
 #include "utils.hpp"
 
@@ -11,11 +11,11 @@
 #include <pcg/pcg_random.hpp>
 #include <random>
 
-class Circuit : public CircuitInterface {
+class Circuit {
 private:
   /* data */
-  OperatorGeneratorInterface* operator_generator;
-  BasisGeneratorInterface* basis_generator;
+  OperatorGenerator* operator_generator;
+  BasisGenerator* basis_generator;
   int nb_qudits;
   int nb_anyons_per_qudit;
   int nb_anyons;
@@ -31,23 +31,21 @@ private:
 public:
   Circuit(int nb_qudits, int nb_anyons_per_qudit);
 
-  int get_nb_qudits() override { return nb_qudits; }
+  int get_nb_qudits() { return nb_qudits; }
 
-  int get_nb_anyons_per_qudit() override { return nb_anyons_per_qudit; }
+  int get_nb_anyons_per_qudit() { return nb_anyons_per_qudit; }
 
-  int get_dim() override { return dim; }
+  int get_dim() { return dim; }
 
-  Basis get_basis() override { return basis; }
+  Basis get_basis() { return basis; }
 
-  std::vector<std::tuple<int, int>> get_braids_history() override {
+  std::vector<std::tuple<int, int>> get_braids_history() {
     return braids_history;
   }
 
-  std::vector<Eigen::MatrixXcd> get_braiding_operators() override {
-    return sigmas;
-  }
+  std::vector<Eigen::MatrixXcd> get_braiding_operators() { return sigmas; }
 
-  Eigen::MatrixXcd get_unitary() override { return unitary; }
+  Eigen::MatrixXcd get_unitary() { return unitary; }
 
   void generate_basis();
 
@@ -67,9 +65,9 @@ public:
    *
    * @return A reference to the same circuit.
    */
-  CircuitInterface& initialize(const Eigen::VectorXcd& input_state) override;
+  void initialize(const Eigen::VectorXcd& input_state);
 
-  CircuitInterface& braid(int n, int m) override;
+  void braid(int n, int m);
 
   /**
    * Takes a sequence of [sigma operator, power], and applies the successive
@@ -84,9 +82,9 @@ public:
    *
    * @return A reference to the same circuit.
    */
-  Circuit& braid_sequence(Sequence& braid) override;
+  void braid_sequence(Sequence& braid);
 
-  Circuit& measure() override;
+  void measure();
 
   // Constructor and other methods
 
@@ -95,7 +93,7 @@ public:
    *
    * @return Eigen::VectorXcd The state vector of the circuit.
    */
-  Eigen::VectorXcd statevector() override { return unitary * initial_state; }
+  Eigen::VectorXcd statevector() { return unitary * initial_state; }
 
   /**
    * Simulates the quantum circuit for a specified number of shots and returns
@@ -107,5 +105,5 @@ public:
    * @throws std::runtime_error Is thrown if the circuit is run without a
    * measurement.
    */
-  Result run(int shots) override;
+  Result run(int shots);
 };
