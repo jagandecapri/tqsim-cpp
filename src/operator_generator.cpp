@@ -294,13 +294,13 @@ public:
                 if (i == static_cast<size_t>(m)) {
                     continue;
                 } else if (state_i.qudits[i] != state_f.qudits[i]) {
-                    braket = (0.0, 0.0);
+                    braket = {0.0, 0.0};
                 }
             }
 
             for (size_t i = 0; i < state_i.roots.size(); ++i) {
                 if (state_i.roots[i] != state_f.roots[i]) {
-                    braket = (0.0, 0.0);
+                    braket = {0.0, 0.0};
                 }
             }
 
@@ -360,7 +360,7 @@ public:
             amplitude += S(jm, jmo, jmoo, jmo_, h, i_, i, jj_, jj);
 
             if (new_state_i != state_f) {
-                braket = (0.0, 0.0);
+                braket = {0.0, 0.0};
             }
         }
 
