@@ -5,9 +5,10 @@
 #include <cmath>
 #include <Eigen/Dense>
 #include <gtest/gtest.h>
+
 #include "container.h"
-#include "operator_generator.cpp"
-#include "basis_generator.cpp"
+#include "operator_generator.h"
+#include "basis_generator.h"
 
 
 /**

@@ -1,8 +1,9 @@
 //
 // Created by Jagan on 06/08/2023.
 //
-#include "gtest/gtest.h"
-#include "basis_generator.cpp"
+#include <gtest/gtest.h>
+
+#include "basis_generator.h"
 
 // Test cases for checkFibonacciFusionRules function
 TEST(CheckRulesTest, TestCases) {

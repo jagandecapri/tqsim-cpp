@@ -1,9 +1,10 @@
 //
 // Created by Jagan on 05/08/2023.
 //
-#include "iostream"
-#include "gtest/gtest.h"
-#include "circuit.cpp"
+#include <iostream>
+#include <gtest/gtest.h>
+
+#include "circuit.h"
 
 
 class TestCircuit : public ::testing::Test {
