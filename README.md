@@ -19,4 +19,4 @@ Algorithm wise, potentially better improvement can be done by using better data 
 
 Entry point of the program is `main.cpp` which has a simple example.
 
-Tested with GNU GCC/G++-13.1.0 with C++17 standard.
+Tested with Clang with C++17 standard.
