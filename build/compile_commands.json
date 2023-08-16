@@ -1,8 +1,0 @@
-[
-{
-  "directory": "/Users/jagan/Codes/tqsim-cpp/build",
-  "command": "/Library/Developer/CommandLineTools/usr/bin/c++  -I/Users/jagan/Codes/tqsim-cpp/include -I/Users/jagan/Codes/tqsim-cpp/src -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk -o CMakeFiles/tqsim-cpp.dir/main.cpp.o -c /Users/jagan/Codes/tqsim-cpp/main.cpp",
-  "file": "/Users/jagan/Codes/tqsim-cpp/main.cpp",
-  "output": "CMakeFiles/tqsim-cpp.dir/main.cpp.o"
-}
-]

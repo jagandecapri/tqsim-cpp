@@ -10,13 +10,17 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-enable_testing()
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src)
-# 'Google_Tests_run' is the target name
-add_executable(Google_Tests_run test_circuit.cpp
-        test_operator_generator.cpp
-        test_basis_generator.cpp)
-target_link_libraries(Google_Tests_run gtest gtest_main gmock gmock_main)
-target_link_libraries(Google_Tests_run src)
+# create an executable in which the tests will be stored
+add_executable(tqsim-test
+               test_circuit.cpp
+               test_operator_generator.cpp
+               test_basis_generator.cpp)
 
-include(GoogleTest)
+# link the Google test infrastructure and a default main function to the test executable.
+target_link_libraries(tqsim-test PRIVATE tqsim-cpp gmock gtest_main)
+# discover tests
+gtest_discover_tests(
+		tqsim-test
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+		PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" DISCOVERY_TIMEOUT 60)
+set_target_properties(tqsim-test PROPERTIES FOLDER tests)
