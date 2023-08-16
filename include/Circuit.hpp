@@ -6,6 +6,7 @@
 #include "utils.hpp"
 
 #include <iostream>
+#include <memory>
 #include <map>
 #include <pcg/pcg_extras.hpp>
 #include <pcg/pcg_random.hpp>
@@ -14,43 +15,43 @@
 class Circuit {
 private:
   /* data */
-  OperatorGenerator* operator_generator;
-  BasisGenerator* basis_generator;
-  int nb_qudits;
-  int nb_anyons_per_qudit;
-  int nb_anyons;
-  int nb_braids;
-  bool measured;
+  std::unique_ptr<OperatorGenerator> operatorGenerator;
+  std::unique_ptr<BasisGenerator> basisGenerator;
+  int nbQudits{};
+  int nbAnyonsPerQudit{};
+  int nbAnyons{};
+  int nbBraids{};
+  bool measured{};
   Basis basis;
-  size_t dim;
-  std::vector<std::tuple<int, int>> braids_history;
-  Eigen::VectorXcd initial_state;
+  Eigen::Index dim{};
+  std::vector<std::tuple<int, int>> braidsHistory;
+  Eigen::VectorXcd initialState;
   std::vector<Eigen::MatrixXcd> sigmas;
   Eigen::MatrixXcd unitary;
 
 public:
   Circuit() = default;
-  Circuit(int nb_qudits, int nb_anyons_per_qudit);
+  Circuit(int nbQudits, int nbAnyonsPerQudit);
 
-  int get_nb_qudits() { return nb_qudits; }
+  [[nodiscard]] int getNbQudits() const { return nbQudits; }
 
-  int get_nb_anyons_per_qudit() { return nb_anyons_per_qudit; }
+  [[nodiscard]] int getNbAnyonsPerQudit() const { return nbAnyonsPerQudit; }
 
-  int get_dim() { return dim; }
+  [[nodiscard]] Eigen::Index getDim() const { return dim; }
 
-  Basis get_basis() { return basis; }
+  Basis getBasis() { return basis; }
 
-  std::vector<std::tuple<int, int>> get_braids_history() {
-    return braids_history;
+  std::vector<std::tuple<int, int>> getBraidsHistory() {
+    return braidsHistory;
   }
 
-  std::vector<Eigen::MatrixXcd> get_braiding_operators() { return sigmas; }
+  std::vector<Eigen::MatrixXcd> getBraidingOperators() { return sigmas; }
 
-  Eigen::MatrixXcd get_unitary() { return unitary; }
+  Eigen::MatrixXcd getUnitary() { return unitary; }
 
-  void generate_basis();
+  void generateBasis();
 
-  void get_sigmas();
+  void getSigmas();
 
   /**
    * Initializes the circuit in the state input_state.
@@ -66,7 +67,7 @@ public:
    *
    * @return A reference to the same circuit.
    */
-  void initialize(const Eigen::VectorXcd& input_state);
+  void initialize(const Eigen::VectorXcd& inputState);
 
   void braid(int n, int m);
 
@@ -83,7 +84,7 @@ public:
    *
    * @return A reference to the same circuit.
    */
-  void braid_sequence(Sequence& braid);
+  void braidSequence(Sequence& braid);
 
   void measure();
 
@@ -94,7 +95,7 @@ public:
    *
    * @return Eigen::VectorXcd The state vector of the circuit.
    */
-  Eigen::VectorXcd statevector() { return unitary * initial_state; }
+  Eigen::VectorXcd statevector() { return unitary * initialState; }
 
   /**
    * Simulates the quantum circuit for a specified number of shots and returns

@@ -57,8 +57,8 @@ int main(int, char**) {
   Eigen::VectorXcd init_sequence(13);
   init_sequence << 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
   circuit.initialize(init_sequence);
-  circuit.braid_sequence(had_sequence_2);
-  circuit.braid_sequence(cnot_sequence);
+  circuit.braidSequence(had_sequence_2);
+  circuit.braidSequence(cnot_sequence);
   circuit.measure();
   int shots = 100000000;
   Result res = circuit.run(shots);

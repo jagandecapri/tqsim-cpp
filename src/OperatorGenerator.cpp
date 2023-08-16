@@ -4,106 +4,106 @@
 
 Eigen::Matrix<double, 2, 2> OperatorGenerator::F(int a1, int a2, int a3,
                                                  int outcome) {
-  const double inv_phi = (std::sqrt(5) - 1) / 2; // inverse of golden number
-  Eigen::Matrix<double, 2, 2> f_matrix;
+  const double invPhi = (std::sqrt(5) - 1) / 2; // inverse of golden number
+  Eigen::Matrix<double, 2, 2> fMatrix;
 
   // a1 + a2 + a3 + outcome = 4
   if (a1 + a2 + a3 + outcome == 4) {
-    f_matrix << inv_phi, std::sqrt(inv_phi), std::sqrt(inv_phi), -inv_phi;
+    fMatrix << invPhi, std::sqrt(invPhi), std::sqrt(invPhi), -invPhi;
   }
   // a1 + a2 + a3 + outcome = 3
   else if (a1 + a2 + a3 + outcome == 3) {
-    f_matrix << 0, 0, 0, 1;
+    fMatrix << 0, 0, 0, 1;
   }
   // a1 + a2 + a3 + outcome = 2
   else if (a1 + a2 + a3 + outcome == 2) {
     if (a1 + a2 == 2) {
-      f_matrix << 0, 1, 0, 0;
+      fMatrix << 0, 1, 0, 0;
     } else if (a2 + a3 == 2) {
-      f_matrix << 0, 0, 1, 0;
+      fMatrix << 0, 0, 1, 0;
     } else if (a1 + a3 == 2) {
-      f_matrix << 0, 0, 0, 1;
+      fMatrix << 0, 0, 0, 1;
     } else if (a3 + outcome == 2) {
-      f_matrix << 0, 1, 0, 0;
+      fMatrix << 0, 1, 0, 0;
     } else if (a1 + outcome == 2) {
-      f_matrix << 0, 0, 1, 0;
+      fMatrix << 0, 0, 1, 0;
     } else if (a2 + outcome == 2) {
-      f_matrix << 0, 0, 0, 1;
+      fMatrix << 0, 0, 0, 1;
     }
   }
   // a1 + a2 + a3 + outcome = 1 or 0
   else if (a1 + a2 + a3 + outcome <= 1) {
-    f_matrix << 1, 0, 0, 0;
+    fMatrix << 1, 0, 0, 0;
   }
 
-  return f_matrix;
+  return fMatrix;
 }
 
 Eigen::Matrix<std::complex<double>, 2, 2> OperatorGenerator::R(int a1, int a2) {
   using complex_t = std::complex<double>;
-  Eigen::Matrix<complex_t, 2, 2> r_matrix;
+  Eigen::Matrix<complex_t, 2, 2> rMatrix;
 
   if (a1 + a2 == 2) {
     const double pi = std::acos(-1);
-    complex_t exp_val1 = std::exp(complex_t(0.0, -4 * pi / 5.0));
-    complex_t exp_val2 = std::exp(complex_t(0.0, 3 * pi / 5.0));
-    r_matrix << exp_val1, complex_t(0, 0), complex_t(0, 0), exp_val2;
+    complex_t const expVal1 = std::exp(complex_t(0.0, -4 * pi / 5.0));
+    complex_t const expVal2 = std::exp(complex_t(0.0, 3 * pi / 5.0));
+    rMatrix << expVal1, complex_t(0, 0), complex_t(0, 0), expVal2;
   } else {
-    r_matrix << complex_t(1, 0), complex_t(0, 0), complex_t(0, 0),
+    rMatrix << complex_t(1, 0), complex_t(0, 0), complex_t(0, 0),
         complex_t(1, 0);
   }
 
-  return r_matrix;
+  return rMatrix;
 }
 
 Eigen::Matrix<std::complex<double>, 2, 2>
 OperatorGenerator::B(int a0, int a1, int a2, int outcome) {
   // Compute the intermediate matrices
-  Eigen::Matrix<double, 2, 2> f_result = F(a0, a1, a2, outcome);
-  Eigen::Matrix<std::complex<double>, 2, 2> r_result = R(a1, a2);
-  Eigen::Matrix<double, 2, 2> f_transpose_conjugate_result =
+  Eigen::Matrix<double, 2, 2> const fResult = F(a0, a1, a2, outcome);
+  Eigen::Matrix<std::complex<double>, 2, 2> const rResult = R(a1, a2);
+  Eigen::Matrix<double, 2, 2> const fTransposeConjugateResult =
       F(a0, a2, a1, outcome).transpose().conjugate();
 
   // Compute the braid matrix using Eigen matrix operations
-  Eigen::Matrix<std::complex<double>, 2, 2> b_matrix =
-      f_result * r_result * f_transpose_conjugate_result;
+  Eigen::Matrix<std::complex<double>, 2, 2> bMatrix =
+      fResult * rResult * fTransposeConjugateResult;
 
-  return b_matrix;
+  return bMatrix;
 }
 
 std::complex<double> OperatorGenerator::sigma(int index,
-                                              const std::vector<int>& state_f,
-                                              const std::vector<int>& state_i) {
-  if (index <= 0 || index > static_cast<int>(state_i.size())) {
+                                              const std::vector<int>& stateF,
+                                              const std::vector<int>& stateI) {
+  if (index <= 0 || index > static_cast<int>(stateI.size())) {
     throw std::invalid_argument("index value is not valid!");
   }
 
-  std::vector<int> stt_f = {1};
-  stt_f.insert(stt_f.end(), state_f.begin(), state_f.end());
+  std::vector<int> sttF = {1};
+  sttF.insert(sttF.end(), stateF.begin(), stateF.end());
 
-  std::vector<int> stt_i = {1};
-  stt_i.insert(stt_i.end(), state_i.begin(), state_i.end());
+  std::vector<int> sttI = {1};
+  sttI.insert(sttI.end(), stateI.begin(), stateI.end());
 
-  int a0;
+  int a0 = 0;
   if (index - 2 < 0) {
     a0 = 0;
   } else if (index - 2 == 0) {
     a0 = 1;
   } else {
-    a0 = state_i[index - 3];
+    a0 = stateI[index - 3];
   }
 
-  int outcome = state_i[index - 1];
-  int a = stt_i[index - 1];
-  int b = stt_f[index - 1];
-  Eigen::Matrix<std::complex<double>, 2, 2> b_matrix =
+  int const outcome = stateI[index - 1];
+  int const a = sttI[index - 1];
+  int const b = sttF[index - 1];
+  Eigen::Matrix<std::complex<double>, 2, 2> bMatrix =
       B(a0, 1, 1, outcome);
-  std::complex<double> amplitude = b_matrix(a, b);
+  std::complex<double> const amplitude = bMatrix(a, b);
 
-  std::vector<int> ket = stt_i;
+  std::vector<int> ket = sttI;
   ket[index - 1] = b;
-  std::vector<int> bra = stt_f;
-  double braket = (ket == bra) ? 1 : 0;
+  std::vector<int> const bra = sttF;
+  double const braket = (ket == bra) ? 1 : 0;
 
   return amplitude * braket;
 }
@@ -113,22 +113,22 @@ std::complex<double> OperatorGenerator::L(int k, int h, int i_, int i,
                                           const std::vector<int>& jj) {
   std::complex<double> component(0.0, 0.0);
 
-  int qudit_len = static_cast<int>(jj.size());
+  int const quditLen = static_cast<int>(jj.size());
   std::vector<int> jjj_ = jj_;
   std::vector<int> jjj = jj;
   jjj_.insert(jjj_.begin(), 1);
   jjj.insert(jjj.begin(), 1);
 
-  std::vector<int> init_p(qudit_len, 0);
-  std::vector<int> final_p(qudit_len, 1);
-  std::vector<int> new_p = init_p;
+  std::vector<int> const initP(quditLen, 0);
+  std::vector<int> const finalP(quditLen, 1);
+  std::vector<int> newP = initP;
 
-  while (new_p != final_p) {
-    std::vector<int> pp = new_p;
+  while (newP != finalP) {
+    std::vector<int> pp = newP;
     pp.push_back(k);
 
     std::complex<double> product(1.0, 0.0);
-    for (int ii = 0; ii < qudit_len; ++ii) {
+    for (int ii = 0; ii < quditLen; ++ii) {
       product *= F(i, jjj[ii], 1, pp[ii + 1])
                      .transpose()
                      .conjugate()(jjj[ii + 1], pp[ii]) *
@@ -139,21 +139,20 @@ std::complex<double> OperatorGenerator::L(int k, int h, int i_, int i,
     component += product;
 
     // iterate
-    for (int ii = 0; ii < qudit_len; ++ii) {
-      if (new_p[ii] == 0) {
-        new_p[ii] = 1;
+    for (int ii = 0; ii < quditLen; ++ii) {
+      if (newP[ii] == 0) {
+        newP[ii] = 1;
         break;
-      } else {
-        new_p[ii] = 0;
       }
+      newP[ii] = 0;
     }
   }
 
   // final iteration
-  std::vector<int> pp = new_p;
+  std::vector<int> pp = newP;
   pp.push_back(k);
   std::complex<double> product(1.0, 0.0);
-  for (int ii = 0; ii < qudit_len; ++ii) {
+  for (int ii = 0; ii < quditLen; ++ii) {
     product *= F(i, jjj[ii], 1, pp[ii + 1])
                    .transpose()
                    .conjugate()(jjj[ii + 1], pp[ii]) *
@@ -172,7 +171,7 @@ std::complex<double> OperatorGenerator::S(int jm, int jmo, int jmoo, int jmo_,
                                           const std::vector<int>& jj) {
   std::complex<double> component(0.0, 0.0);
 
-  for (int kk : {0, 1}) {
+  for (int const kk : {0, 1}) {
     component += F(jmoo, i, jj.back(), jm)(jmo, kk) * L(kk, h, i_, i, jj_, jj) *
                  F(jmoo, i_, jj_.back(), jm).transpose().conjugate()(kk, jmo_);
   }
@@ -180,89 +179,97 @@ std::complex<double> OperatorGenerator::S(int jm, int jmo, int jmoo, int jmo_,
   return component;
 }
 
-std::complex<double> OperatorGenerator::gen_sigma(int index,
-                                                  const State& state_i,
-                                                  const State& state_f) {
-  int qudit_len = static_cast<int>(state_i.qudits[0].size());
-  int nb_anyons_per_qudit = qudit_len + 1;
+std::complex<double> OperatorGenerator::genSigma(int index,
+                                                  const State& stateI,
+                                                  const State& stateF) {
+  int const quditLen = static_cast<int>(stateI.qudits[0].size());
+  int const nbAnyonsPerQudit = quditLen + 1;
 
   std::complex<double> amplitude(0.0, 0.0);
   std::complex<double> braket(1.0, 0.0);
 
-  if (index % nb_anyons_per_qudit > 0) {
-    int m = index / nb_anyons_per_qudit;
-    int idx = index % nb_anyons_per_qudit;
-    amplitude = sigma(idx, state_f.qudits.at(m), state_i.qudits.at(m));
+  if (index % nbAnyonsPerQudit > 0) {
+    int const m = index / nbAnyonsPerQudit;
+    int const idx = index % nbAnyonsPerQudit;
+    amplitude = sigma(idx, stateF.qudits.at(m), stateI.qudits.at(m));
 
-    for (size_t i = 0; i < state_i.qudits.size(); ++i) {
+    for (size_t i = 0; i < stateI.qudits.size(); ++i) {
       if (i == static_cast<size_t>(m)) {
         continue;
-      } else if (state_i.qudits[i] != state_f.qudits[i]) {
+      }
+      if (stateI.qudits[i] != stateF.qudits[i]) {
         braket = {0.0, 0.0};
       }
     }
 
-    for (size_t i = 0; i < state_i.roots.size(); ++i) {
-      if (state_i.roots[i] != state_f.roots[i]) {
+    for (size_t i = 0; i < stateI.roots.size(); ++i) {
+      if (stateI.roots[i] != stateF.roots[i]) {
         braket = {0.0, 0.0};
       }
     }
 
   } else {
-    int m = (index / nb_anyons_per_qudit) - 1;
+    int const m = (index / nbAnyonsPerQudit) - 1;
 
-    State new_state_i = state_i;
-    new_state_i.qudits.at(m).back() = state_f.qudits.at(m).back();
-    new_state_i.qudits.at(m + 1) = state_f.qudits.at(m + 1);
+    State newStateI = stateI;
+    newStateI.qudits.at(m).back() = stateF.qudits.at(m).back();
+    newStateI.qudits.at(m + 1) = stateF.qudits.at(m + 1);
 
-    int jm = 0, jmo = 0, jmoo = 0, jmo_ = 0, h = 0, i_ = 0, i = 0;
-    std::vector<int> jj_, jj;
+    int jm = 0;
+    int jmo = 0;
+    int jmoo = 0;
+    int jmo_ = 0;
+    int h = 0;
+    int i_ = 0;
+    int i = 0;
+    std::vector<int> jj_;
+    std::vector<int> jj;
 
     if (m + 1 > 2) {
-      new_state_i.roots[m - 1] = state_f.roots[m - 1];
+      newStateI.roots[m - 1] = stateF.roots[m - 1];
 
-      jj_ = new_state_i.qudits[m + 1];
-      jj = state_i.qudits[m + 1];
-      h = state_i.qudits.at(m).at(qudit_len - 2);
-      i = state_i.qudits.at(m).at(qudit_len - 1);
-      i_ = new_state_i.qudits.at(m).at(qudit_len - 1);
+      jj_ = newStateI.qudits[m + 1];
+      jj = stateI.qudits[m + 1];
+      h = stateI.qudits.at(m).at(quditLen - 2);
+      i = stateI.qudits.at(m).at(quditLen - 1);
+      i_ = newStateI.qudits.at(m).at(quditLen - 1);
 
-      jmo_ = new_state_i.roots[m - 1];
-      jmoo = state_i.roots[m - 2];
-      jmo = state_i.roots[m - 1];
-      jm = state_i.roots[m];
+      jmo_ = newStateI.roots[m - 1];
+      jmoo = stateI.roots[m - 2];
+      jmo = stateI.roots[m - 1];
+      jm = stateI.roots[m];
 
     } else if (m + 1 == 2) {
-      new_state_i.roots[m - 1] = state_f.roots[m - 1];
+      newStateI.roots[m - 1] = stateF.roots[m - 1];
 
-      jj_ = new_state_i.qudits[m + 1];
-      jj = state_i.qudits[m + 1];
-      h = state_i.qudits.at(m).at(qudit_len - 2);
-      i = state_i.qudits.at(m).at(qudit_len - 1);
-      i_ = new_state_i.qudits.at(m).at(qudit_len - 1);
+      jj_ = newStateI.qudits[m + 1];
+      jj = stateI.qudits[m + 1];
+      h = stateI.qudits.at(m).at(quditLen - 2);
+      i = stateI.qudits.at(m).at(quditLen - 1);
+      i_ = newStateI.qudits.at(m).at(quditLen - 1);
 
-      jmo_ = new_state_i.roots[m - 1];
-      jmoo = state_i.qudits.at(0).at(qudit_len - 1);
-      jmo = state_i.roots[m - 1];
-      jm = state_i.roots[m];
+      jmo_ = newStateI.roots[m - 1];
+      jmoo = stateI.qudits.at(0).at(quditLen - 1);
+      jmo = stateI.roots[m - 1];
+      jm = stateI.roots[m];
 
     } else if (m + 1 == 1) {
 
-      jj_ = new_state_i.qudits[m + 1];
-      jj = state_i.qudits[m + 1];
-      h = state_i.qudits.at(m).at(qudit_len - 2);
-      i = state_i.qudits.at(m).at(qudit_len - 1);
-      i_ = new_state_i.qudits.at(m).at(qudit_len - 1);
+      jj_ = newStateI.qudits[m + 1];
+      jj = stateI.qudits[m + 1];
+      h = stateI.qudits.at(m).at(quditLen - 2);
+      i = stateI.qudits.at(m).at(quditLen - 1);
+      i_ = newStateI.qudits.at(m).at(quditLen - 1);
 
-      jmo_ = new_state_i.qudits.at(0).at(qudit_len - 1);
+      jmo_ = newStateI.qudits.at(0).at(quditLen - 1);
       jmoo = 0;
-      jmo = state_i.qudits.at(0).at(qudit_len - 1);
-      jm = state_i.roots[m];
+      jmo = stateI.qudits.at(0).at(quditLen - 1);
+      jm = stateI.roots[m];
     }
 
     amplitude += S(jm, jmo, jmoo, jmo_, h, i_, i, jj_, jj);
 
-    if (new_state_i != state_f) {
+    if (newStateI != stateF) {
       braket = {0.0, 0.0};
     }
   }
@@ -271,20 +278,19 @@ std::complex<double> OperatorGenerator::gen_sigma(int index,
 }
 
 Eigen::MatrixXcd
-OperatorGenerator::generate_braiding_operator(int index, int nb_qudits,
-                                              int nb_anyons_per_qudit) {
+OperatorGenerator::generateBraidingOperator(int index, int nbQudits,
+                                              int nbAnyonsPerQudit) {
   // Generate the basis states
-  Basis basis =
-      basis_generator->generate_basis(nb_qudits, nb_anyons_per_qudit);
+  Basis basis = basisGenerator->generate_basis(nbQudits, nbAnyonsPerQudit);
 
-  size_t basisSize = basis.size();
+  size_t const basisSize = basis.size();
   Eigen::MatrixXcd sigma(basisSize, basisSize);
 
   for (size_t f = 0; f < basisSize; ++f) {
-    auto f_index = static_cast<Eigen::Index>(f);
-    for (size_t base_i = 0; base_i < basisSize; ++base_i) {
-      auto base_i_index = static_cast<Eigen::Index>(base_i);
-      sigma(f_index, base_i_index) = gen_sigma(index, basis[base_i], basis[f]);
+    auto fIndex = static_cast<Eigen::Index>(f);
+    for (size_t baseI = 0; baseI < basisSize; ++baseI) {
+      auto baseIIndex = static_cast<Eigen::Index>(baseI);
+      sigma(fIndex, baseIIndex) = genSigma(index, basis[baseI], basis[f]);
     }
   }
 

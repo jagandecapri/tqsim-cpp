@@ -7,13 +7,13 @@
 #include <vector>
 
 class OperatorGenerator {
-  BasisGenerator* basis_generator;
+  BasisGenerator* basisGenerator;
 
 public:
   OperatorGenerator() = default;
 
   explicit OperatorGenerator(BasisGenerator* generator)
-      : basis_generator(generator) {}
+      : basisGenerator(generator) {}
 
   /**
    * @brief Calculates the F matrix based on input values.
@@ -28,7 +28,7 @@ public:
    * @param outcome Integer parameter outcome.
    * @return Eigen::Matrix<double, 2, 2> The F matrix.
    */
-  Eigen::Matrix<double, 2, 2> F(int a1, int a2, int a3, int outcome);
+  static Eigen::Matrix<double, 2, 2> F(int a1, int a2, int a3, int outcome);
 
   /**
    * @brief Calculates the R matrix based on input values.
@@ -41,7 +41,7 @@ public:
    * @param a2 Integer parameter a2.
    * @return Eigen::Matrix<std::complex<double>, 2, 2> The R matrix.
    */
-  Eigen::Matrix<std::complex<double>, 2, 2> R(int a1, int a2);
+  static Eigen::Matrix<std::complex<double>, 2, 2> R(int a1, int a2);
 
   /**
    * @brief Calculates the B matrix based on input values.
@@ -53,7 +53,7 @@ public:
    *  @param outcome: Matrix representing outcome
    *  @return b_matrix The braid matrix computed using Eigen.
    */
-  Eigen::Matrix<std::complex<double>, 2, 2> B(int a0, int a1, int a2,
+  static Eigen::Matrix<std::complex<double>, 2, 2> B(int a0, int a1, int a2,
                                               int outcome);
 
   /**
@@ -69,8 +69,8 @@ public:
    * @throws std::invalid_argument If the index value is not valid (less than or
    * equal to 0, or greater than the size of state_i).
    */
-  std::complex<double> sigma(int index, const std::vector<int>& state_f,
-                             const std::vector<int>& state_i);
+  static std::complex<double> sigma(int index, const std::vector<int>& stateF,
+                             const std::vector<int>& stateI);
 
   /**
    * L matrix component used in the calculation of braiding between two anyons
@@ -85,7 +85,7 @@ public:
    *
    * @return The L matrix component.
    */
-  std::complex<double> L(int k, int h, int i_, int i,
+  static std::complex<double> L(int k, int h, int i_, int i,
                          const std::vector<int>& jj_,
                          const std::vector<int>& jj);
 
@@ -105,7 +105,7 @@ public:
    *
    * @return The S matrix component.
    */
-  std::complex<double> S(int jm, int jmo, int jmoo, int jmo_, int h, int i_,
+  static std::complex<double> S(int jm, int jmo, int jmoo, int jmo_, int h, int i_,
                          int i, const std::vector<int>& jj_,
                          const std::vector<int>& jj);
 
@@ -115,17 +115,17 @@ public:
    * immediately.
    *
    * @param index int: The index of the Sigma matrix component.
-   * @param state_i std::unordered_map<std::string,
+   * @param stateI std::unordered_map<std::string,
    * std::vector<std::vector<int>>>: The initial state represented as a
    * dictionary containing "qudits" and "roots".
-   * @param state_f std::unordered_map<std::string,
+   * @param stateF std::unordered_map<std::string,
    * std::vector<std::vector<int>>>: The final state represented as a dictionary
    * containing "qudits" and "roots".
    *
    * @return The Sigma matrix component.
    */
-  std::complex<double> gen_sigma(int index, const State& state_i,
-                                 const State& state_f);
+  std::complex<double> genSigma(int index, const State& stateI,
+                                 const State& stateF);
 
   /**
    * Generate the braiding operator of index 'index' for a system of
@@ -138,6 +138,6 @@ public:
    * @return Matrix representation of the braiding operator as a list of lists
    * (sigmas).
    */
-  Eigen::MatrixXcd generate_braiding_operator(int index, int nb_qudits,
-                                              int nb_anyons_per_qudit);
+  Eigen::MatrixXcd generateBraidingOperator(int index, int nbQudits,
+                                              int nbAnyonsPerQudit);
 };

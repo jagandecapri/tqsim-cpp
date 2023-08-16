@@ -177,7 +177,7 @@ TEST(GenSigmaFunctionTest, TestCases) {
   State state_f_case_1 = {.qudits = {{1, 0}, {1, 0}}, .roots = {0}};
 
   std::complex<double> result_case1 =
-      operator_generator.gen_sigma(index_case1, state_i_case_1, state_f_case_1);
+      operator_generator.genSigma(index_case1, state_i_case_1, state_f_case_1);
   std::complex<double> expected_case1(-0, 0);
   EXPECT_EQ(result_case1, expected_case1);
 }
@@ -196,7 +196,7 @@ TEST(GenerateBraidingOperator, TestCases) {
       std::complex<double>(-0, 0), std::complex<double>(0, 0),
       std::complex<double>(-0.30901699437494734, 0.9510565162951536);
 
-  Eigen::MatrixXcd result_case1 = operator_generator.generate_braiding_operator(
+  Eigen::MatrixXcd result_case1 = operator_generator.generateBraidingOperator(
       index_case1, nb_qudits_case1, nb_anyons_per_qudit_case1);
   EXPECT_EQ(result_case1, expected_case1);
 }

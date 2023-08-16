@@ -61,8 +61,8 @@ TEST_F(TestCircuit, CircuitTestInit) {
   Eigen::VectorXcd initSequence(13);
   initSequence << 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
   circuit.initialize(initSequence);
-  circuit.braid_sequence(hadSequence2);
-  circuit.braid_sequence(cnotSequence);
+  circuit.braidSequence(hadSequence2);
+  circuit.braidSequence(cnotSequence);
   circuit.measure();
   const auto res = circuit.run(1000000);
 

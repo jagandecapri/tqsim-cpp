@@ -1,55 +1,55 @@
+#include <memory>
 #include "Circuit.hpp"
 
-Circuit::Circuit(int nb_qudits, int nb_anyons_per_qudit)
-    : nb_qudits(nb_qudits), nb_anyons_per_qudit(nb_anyons_per_qudit),
-      nb_anyons(nb_qudits * nb_anyons_per_qudit), nb_braids(0),
-      measured(false) {
-  basis_generator = new BasisGenerator();
-  operator_generator = new OperatorGenerator(basis_generator);
+Circuit::Circuit(int nbQudits, int nbAnyonsPerQudit)
+    : nbQudits(nbQudits), nbAnyonsPerQudit(nbAnyonsPerQudit),
+      nbAnyons(nbQudits * nbAnyonsPerQudit),
+      basisGenerator(std::make_unique<BasisGenerator>()) {
+  operatorGenerator = std::make_unique<OperatorGenerator>(basisGenerator.get());
 
-  generate_basis();
-  dim = basis.size();
-  initial_state = Eigen::VectorXcd::Zero(dim);
-  initial_state(0) = 1.0;
+  generateBasis();
+  dim = static_cast<Eigen::Index>(basis.size()); // NOLINT
+  initialState = Eigen::VectorXcd::Zero(dim);
+  initialState(0) = 1.0;
 
-  get_sigmas();
+  getSigmas();
   //        for (int i = 0; i < sigmas.size(); ++i) {
   //            std::cout << "Sigmas: " << i << " " << sigmas[i] << std::endl;
   //        }
   unitary = Eigen::MatrixXcd::Identity(dim, dim);
 }
 
-void Circuit::generate_basis() {
-  basis = basis_generator->generate_basis(nb_qudits, nb_anyons_per_qudit);
+void Circuit::generateBasis() {
+  basis = basisGenerator->generate_basis(nbQudits, nbAnyonsPerQudit);
 }
 
-void Circuit::get_sigmas() {
-  sigmas.reserve(nb_anyons - 1); // Reserve space for sigmas
+void Circuit::getSigmas() {
+  sigmas.reserve(nbAnyons - 1); // Reserve space for sigmas
 
-  for (int index = 1; index < nb_anyons; ++index) {
-    Eigen::MatrixXcd sigma = operator_generator->generate_braiding_operator(
-        index, nb_qudits, nb_anyons_per_qudit);
+  for (int index = 1; index < nbAnyons; ++index) {
+    const Eigen::MatrixXcd sigma = operatorGenerator->generateBraidingOperator(
+        index, nbQudits, nbAnyonsPerQudit);
     sigmas.push_back(sigma);
   }
 }
 
-void Circuit::initialize(const Eigen::VectorXcd& input_state) {
-  if (nb_braids > 0) {
+void Circuit::initialize(const Eigen::VectorXcd& inputState) {
+  if (nbBraids > 0) {
     throw InitializationException("Initialization should happen before any "
                                   "braiding operation is performed!");
   }
 
-  if (input_state.size() != dim) {
+  if (inputState.size() != dim) {
     throw std::invalid_argument("The state has wrong dimension. Should be " +
                                 std::to_string(dim));
   }
 
-  double norm = input_state.dot(input_state.conjugate()).real();
+  double const norm = inputState.dot(inputState.conjugate()).real();
   if (Eigen::NumTraits<double>::epsilon() <= std::abs(norm - 1)) {
     throw std::invalid_argument("The input state is not normalized correctly!");
   }
   // std::cout << "Input state: " << input_state << std::endl;
-  initial_state = input_state;
+  initialState = inputState;
 }
 
 void Circuit::braid(int n, int m) {
@@ -62,9 +62,9 @@ void Circuit::braid(int n, int m) {
     throw std::invalid_argument("n, m must be higher than 0!");
   }
 
-  if (m > nb_anyons || n > nb_anyons) {
+  if (m > nbAnyons || n > nbAnyons) {
     throw std::invalid_argument("The system has only " +
-                                std::to_string(nb_anyons) +
+                                std::to_string(nbAnyons) +
                                 " anyons! n, m are erroneous!");
   }
 
@@ -81,9 +81,9 @@ void Circuit::braid(int n, int m) {
     unitary = sigmas[m - 1].adjoint() * unitary;
   }
 
-  braids_history.emplace_back(n, m);
+  braidsHistory.emplace_back(n, m);
 
-  nb_braids++;
+  nbBraids++;
 
   //        std::cout << "n = " << n << " m = " << m << std::endl;
   //        std::cout << "nb_braids: " << nb_braids << std::endl;
@@ -99,23 +99,24 @@ void Circuit::braid(int n, int m) {
   // drawer.braid(m, n);
 }
 
-void Circuit::braid_sequence(Sequence& braid_sequence) {
-  for (const auto& step : braid_sequence) {
-    if (step.size() != 2 || !std::all_of(step.begin(), step.end(), [](int val) {
-          return std::is_integral<int>::value;
+void Circuit::braidSequence(Sequence& braid) {
+  for (const auto& step : braid) {
+    if (step.size() != 2 || !std::all_of(step.begin(), step.end(), [](int  /*val*/) {
+          return std::is_integral_v<int>;
         })) {
       throw std::invalid_argument("Indices and powers must be integers!");
     }
 
-    int ind = step[0];
-    int power = step[1];
+    int const ind = step[0];
+    int const power = step[1];
 
-    if (ind < 1 || ind >= nb_anyons) {
+    if (ind < 1 || ind >= nbAnyons) {
       throw std::invalid_argument("Invalid braiding operator index!");
     }
 
     // Computing m and n
-    int m = 0, n = 0;
+    int m = 0;
+    int n = 0;
     if (power > 0) {
       n = ind;
       m = ind + 1;
@@ -127,7 +128,7 @@ void Circuit::braid_sequence(Sequence& braid_sequence) {
     }
 
     for (int _ = 0; _ < std::abs(power); ++_) {
-      braid(n, m); // Assuming the braid function exists
+      this->braid(n, m); // Assuming the braid function exists
     }
   }
 }
@@ -146,26 +147,28 @@ Result Circuit::run(int shots) {
     throw std::runtime_error("The system was not measured!");
   }
 
-  Eigen::VectorXcd sv = statevector();
+  const Eigen::VectorXcd sv = statevector();
   Eigen::VectorXd probs = (sv.cwiseProduct(sv.conjugate())).real();
-  std::discrete_distribution<int> distribution(probs.data(),
-                                               probs.data() + probs.size());
+//  std::discrete_distribution<int> distribution(probs.data(),
+//                                               probs.data() + probs.size());
+  std::discrete_distribution<int> distribution(std::begin(probs),
+                                               std::end(probs));
 
   // Create a random number generator using PCG
   // Seed with a real random value, if available
-  pcg_extras::seed_seq_from<std::random_device> seed_source;
-  pcg64 generator(seed_source);
+  pcg_extras::seed_seq_from<std::random_device> seedSource;
+  pcg64 generator(seedSource);
 
   std::vector<int> memory(shots);
   for (int i = 0; i < shots; ++i) {
     memory[i] = distribution(generator);
   }
 
-  std::map<int, int> counts_dict;
-  for (int value : memory) {
-    counts_dict[value]++;
+  std::map<int, int> countsDict;
+  for (int const value : memory) {
+    countsDict[value]++;
   }
 
-  Result result = {counts_dict, memory};
+  Result result = {countsDict, memory};
   return result;
 }
