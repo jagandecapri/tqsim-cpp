@@ -61,6 +61,7 @@ OperatorGenerator::B(int a0, int a1, int a2, int outcome) {
   // Compute the intermediate matrices
   Eigen::Matrix<double, 2, 2> const fResult = F(a0, a1, a2, outcome);
   Eigen::Matrix<std::complex<double>, 2, 2> const rResult = R(a1, a2);
+  // TODO: Can reuse previous computation of Result?
   Eigen::Matrix<double, 2, 2> const fTransposeConjugateResult =
       F(a0, a2, a1, outcome).transpose().conjugate();
 
