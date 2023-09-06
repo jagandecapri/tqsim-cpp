@@ -1,6 +1,6 @@
 #include "BasisGenerator.hpp"
 
-bool BasisGenerator::check_rule(int anyon1, int anyon2, int outcome) {
+bool BasisGenerator::checkRule(int anyon1, int anyon2, int outcome) {
   if (anyon1 != 0 && anyon2 != 0) {
     return true;
   }
@@ -15,10 +15,10 @@ bool BasisGenerator::check_rule(int anyon1, int anyon2, int outcome) {
   return false;
 }
 
-bool BasisGenerator::check_outcomes(const std::vector<int>& outcomes) {
+bool BasisGenerator::checkOutcomes(const std::vector<int>& outcomes) {
   int previousOutcome = 1;
   for (const auto outcome : outcomes) {
-    if (check_rule(previousOutcome, 1, outcome)) {
+    if (checkRule(previousOutcome, 1, outcome)) {
       previousOutcome = outcome;
     } else {
       return false;
@@ -27,13 +27,13 @@ bool BasisGenerator::check_outcomes(const std::vector<int>& outcomes) {
   return true;
 }
 
-bool BasisGenerator::check_state(const State& state) {
+bool BasisGenerator::checkState(const State& state) {
   std::size_t nb_qudits = state.qudits.size();
   std::size_t qudit_len = state.qudits[0].size();
 
   for (const std::vector<int>& qudit : state.qudits) {
     if (qudit.size() == qudit_len) {
-      if (!check_outcomes(qudit)) {
+      if (!checkOutcomes(qudit)) {
         return false;
       }
     } else {
@@ -48,8 +48,8 @@ bool BasisGenerator::check_state(const State& state) {
   int previous_outcome = state.qudits[0].back();
 
   for (size_t i = 0; i < state.roots.size(); ++i) {
-    if (!check_rule(previous_outcome, state.qudits[i + 1].back(),
-                    state.roots[i])) {
+    if (!checkRule(previous_outcome, state.qudits[i + 1].back(),
+                   state.roots[i])) {
       return false;
     }
     previous_outcome = state.roots[i];
@@ -58,14 +58,14 @@ bool BasisGenerator::check_state(const State& state) {
   return true;
 }
 
-State BasisGenerator::gen_state(const std::vector<int>& comb, int nb_qudits,
-                                int qudit_len) {
+State BasisGenerator::genState(const std::vector<int>& comb, int nbQudits,
+                                int quditLen) {
   State state;
 
   for (size_t i = 0; i < comb.size(); ++i) {
     int label = comb[i];
-    if (i < (nb_qudits * qudit_len)) {
-      if (i % qudit_len) {
+    if (i < (nbQudits * quditLen)) {
+      if (i % quditLen) {
         state.qudits.back().push_back(label);
       } else {
         state.qudits.push_back({label});
@@ -78,18 +78,18 @@ State BasisGenerator::gen_state(const std::vector<int>& comb, int nb_qudits,
   return state;
 }
 
-Basis BasisGenerator::generate_basis(int nb_qudits, int nb_anyons_per_qudit) {
-  int nb_roots = nb_qudits - 1;
-  int qudit_len = nb_anyons_per_qudit - 1;
-  int nb_labels = nb_qudits * qudit_len + nb_roots;
+Basis BasisGenerator::generateBasis(int nbQudits, int nbAnyonsPerQudit) {
+  int nb_roots = nbQudits - 1;
+  int qudit_len = nbAnyonsPerQudit - 1;
+  int nb_labels = nbQudits * qudit_len + nb_roots;
 
   std::vector<State> basis;
   std::vector<int> curr_comb(nb_labels, 0);
   std::vector<int> final_comb(nb_labels, 1);
 
-  State curr_state = gen_state(curr_comb, nb_qudits, qudit_len);
+  State curr_state = genState(curr_comb, nbQudits, qudit_len);
 
-  if (check_state(curr_state)) {
+  if (checkState(curr_state)) {
     basis.push_back(curr_state);
   }
 
@@ -102,9 +102,9 @@ Basis BasisGenerator::generate_basis(int nb_qudits, int nb_anyons_per_qudit) {
       curr_comb[i] = 0;
     }
 
-    curr_state = gen_state(curr_comb, nb_qudits, qudit_len);
+    curr_state = genState(curr_comb, nbQudits, qudit_len);
 
-    if (check_state(curr_state)) {
+    if (checkState(curr_state)) {
       basis.push_back(curr_state);
     }
   }

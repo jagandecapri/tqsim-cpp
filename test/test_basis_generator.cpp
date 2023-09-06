@@ -9,34 +9,34 @@
 TEST(CheckRulesTest, TestCases) {
   BasisGenerator basisGenerator = BasisGenerator();
   // Test case 1: anyon1 = 2, anyon2 = 3, outcome = 5
-  EXPECT_TRUE(basisGenerator.check_rule(1, 1, 0));
+  EXPECT_TRUE(basisGenerator.checkRule(1, 1, 0));
 
   // Test case 2: anyon1 = 0, anyon2 = 1, outcome = 1
-  EXPECT_TRUE(basisGenerator.check_rule(0, 1, 1));
+  EXPECT_TRUE(basisGenerator.checkRule(0, 1, 1));
 
   // Test case 3: anyon1 = 1, anyon2 = 0, outcome = 1
-  EXPECT_TRUE(basisGenerator.check_rule(1, 0, 1));
+  EXPECT_TRUE(basisGenerator.checkRule(1, 0, 1));
 
   // Test case 4: anyon1 = 0, anyon2 = 0, outcome = 0
-  EXPECT_TRUE(basisGenerator.check_rule(0, 0, 0));
+  EXPECT_TRUE(basisGenerator.checkRule(0, 0, 0));
 
   // Test case 4: anyon1 = 1, anyon2 = 0, outcome = 0
-  EXPECT_FALSE(basisGenerator.check_rule(1, 0, 0));
+  EXPECT_FALSE(basisGenerator.checkRule(1, 0, 0));
 }
 
 TEST(CheckOutcomesTest, TestCases) {
   BasisGenerator basisGenerator = BasisGenerator();
   // Test case 1: outcomes = [1, 1, 0, 0, 0]
   std::vector<int> outcomes = {1, 1, 1, 1, 1};
-  EXPECT_TRUE(basisGenerator.check_outcomes(outcomes));
+  EXPECT_TRUE(basisGenerator.checkOutcomes(outcomes));
 
   // Test case 2: outcomes = [1, 1, 0, 0, 1]
   outcomes = {1, 1, 0, 0, 1};
-  EXPECT_FALSE(basisGenerator.check_outcomes(outcomes));
+  EXPECT_FALSE(basisGenerator.checkOutcomes(outcomes));
 
   // Test case 3: outcomes = [1, 1, 0, 0, 0, 0]
   outcomes = {1, 1, 0, 0, 0, 0};
-  EXPECT_FALSE(basisGenerator.check_outcomes(outcomes));
+  EXPECT_FALSE(basisGenerator.checkOutcomes(outcomes));
 }
 
 // Test cases for checkState function
@@ -44,19 +44,19 @@ TEST(CheckStateTest, TestCases) {
   BasisGenerator basisGenerator = BasisGenerator();
   // Test case 1: Valid state
   State validState{{{2, 3, 5}, {1, 2, 4}, {3, 2, 1}}, {2, 3}};
-  EXPECT_TRUE(basisGenerator.check_state(validState));
+  EXPECT_TRUE(basisGenerator.checkState(validState));
 
   // Test case 2: Invalid state due to mismatched qudit length
   State invalidState1{{{1, 2, 3}, {4, 5}, {1, 2, 3}}, {2, 3}};
-  EXPECT_FALSE(basisGenerator.check_state(invalidState1));
+  EXPECT_FALSE(basisGenerator.checkState(invalidState1));
 
   // Test case 3: Invalid state due to mismatched number of qudits and roots
   State invalidState2{{{1, 2, 3}, {4, 5, 6}}, {2, 3}};
-  EXPECT_FALSE(basisGenerator.check_state(invalidState2));
+  EXPECT_FALSE(basisGenerator.checkState(invalidState2));
 
   // Test case 4: Invalid state due to failed check_rule
   State invalidState3{{{1, 0, 0}, {4, 5, 6}, {7, 8, 9}}, {0, 5}};
-  EXPECT_FALSE(basisGenerator.check_state(invalidState3));
+  EXPECT_FALSE(basisGenerator.checkState(invalidState3));
 }
 
 // Test cases for genState function
@@ -66,14 +66,14 @@ TEST(GenStateTest, TestCases) {
   // 9]
   std::vector<int> comb1 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
   State expectedState1{{{1, 2}, {3, 4}, {5, 6}}, {7, 8, 9}};
-  State result1 = basis_generator.gen_state(comb1, 3, 2);
+  State result1 = basis_generator.genState(comb1, 3, 2);
   EXPECT_EQ(result1.qudits, expectedState1.qudits);
   EXPECT_EQ(result1.roots, expectedState1.roots);
 
   // Test case 2: nb_qudits = 2, qudit_len = 3, comb = [1, 2, 3, 4, 5, 6, 7]
   std::vector<int> comb2 = {1, 2, 3, 4, 5, 6, 7};
   State expectedState2{{{1, 2, 3}, {4, 5, 6}}, {7}};
-  State result2 = basis_generator.gen_state(comb2, 2, 3);
+  State result2 = basis_generator.genState(comb2, 2, 3);
   EXPECT_EQ(result2.qudits, expectedState2.qudits);
   EXPECT_EQ(result2.roots, expectedState2.roots);
 }
@@ -86,6 +86,6 @@ TEST(GenerateBasisTest, TestCases) {
   int nb_anyons_per_qudit1 = 2;
   Basis expectedBasis1 = {{{{0}}, {}}, {{{1}}, {}}};
   Basis result1 =
-      basis_generator.generate_basis(nb_qudits1, nb_anyons_per_qudit1);
+      basis_generator.generateBasis(nb_qudits1, nb_anyons_per_qudit1);
   EXPECT_EQ(result1, expectedBasis1);
 }

@@ -282,7 +282,7 @@ Eigen::MatrixXcd
 OperatorGenerator::generateBraidingOperator(int index, int nbQudits,
                                               int nbAnyonsPerQudit) {
   // Generate the basis states
-  Basis basis = basisGenerator->generate_basis(nbQudits, nbAnyonsPerQudit);
+  Basis basis = basisGenerator->generateBasis(nbQudits, nbAnyonsPerQudit);
 
   size_t const basisSize = basis.size();
   Eigen::MatrixXcd sigma(basisSize, basisSize);

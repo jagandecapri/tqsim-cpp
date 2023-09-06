@@ -20,7 +20,7 @@ Circuit::Circuit(int nbQudits, int nbAnyonsPerQudit)
 }
 
 void Circuit::generateBasis() {
-  basis = basisGenerator->generate_basis(nbQudits, nbAnyonsPerQudit);
+  basis = basisGenerator->generateBasis(nbQudits, nbAnyonsPerQudit);
 }
 
 void Circuit::getSigmas() {
