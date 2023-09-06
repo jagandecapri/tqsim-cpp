@@ -1,10 +1,12 @@
+file(GLOB_RECURSE EXTERN_HEADER_FILES ${PROJECT_SOURCE_DIR}/extern/*.hpp)
 file(GLOB_RECURSE HEADER_FILES ${PROJECT_SOURCE_DIR}/include/*.hpp)
 file(GLOB_RECURSE SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 set(target_name tqsim-cpp)
-add_library(${target_name} STATIC ${SOURCE_FILES} ${HEADER_FILES})
+add_library(${target_name} STATIC ${SOURCE_FILES} ${HEADER_FILES} ${EXTERN_HEADER_FILES})
 
 # set include directories
+target_include_directories(${target_name} PUBLIC ${PROJECT_SOURCE_DIR}/extern)
 target_include_directories(${target_name} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 # set required C++ standard
