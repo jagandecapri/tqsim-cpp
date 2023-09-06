@@ -2,9 +2,9 @@
 #include "Circuit.hpp"
 
 Circuit::Circuit(int nbQudits, int nbAnyonsPerQudit)
-    : nbQudits(nbQudits), nbAnyonsPerQudit(nbAnyonsPerQudit),
-      nbAnyons(nbQudits * nbAnyonsPerQudit),
-      basisGenerator(std::make_unique<BasisGenerator>()) {
+    : basisGenerator(std::make_unique<BasisGenerator>()), nbQudits(nbQudits),
+      nbAnyonsPerQudit(nbAnyonsPerQudit),
+      nbAnyons(nbQudits * nbAnyonsPerQudit) {
   operatorGenerator = std::make_unique<OperatorGenerator>(basisGenerator.get());
 
   generateBasis();
