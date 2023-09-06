@@ -33,6 +33,19 @@ if(ENABLE_IPO)
 	endif()
 endif()
 
+# check whether `modulename` is correctly cloned in the `extern` directory.
+macro(CHECK_SUBMODULE_PRESENT modulename)
+	if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/${modulename}/CMakeLists.txt")
+		message(
+				FATAL_ERROR
+				"${modulename} submodule not cloned properly. \
+        Please run `git submodule update --init --recursive` \
+        from the main project directory")
+	endif()
+endmacro()
+
+check_submodule_present(mqt-core)
+
 # add main library code
 add_subdirectory(src)
 
