@@ -66,7 +66,7 @@ TEST_F(TestCircuit, CircuitTestInit) {
   circuit.measure();
   const auto res = circuit.run(1000000);
 
-  for (const auto& [result, count] : res.counts_dict) {
+  for (const auto& [result, count] : res.countsDict) {
     std::cout << result << ": " << count << "\n";
   }
 }

@@ -22,6 +22,6 @@ using Basis = std::vector<State>;
 using Sequence = std::vector<std::vector<int>>;
 
 struct Result {
-  std::map<int, int> counts_dict;
+  std::map<int, int> countsDict;
   std::vector<int> memory;
 };
