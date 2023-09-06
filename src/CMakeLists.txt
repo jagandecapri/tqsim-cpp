@@ -1,4 +1,4 @@
-file(GLOB_RECURSE EXTERN_HEADER_FILES ${PROJECT_SOURCE_DIR}/extern/*.hpp)
+file(GLOB_RECURSE EXTERN_HEADER_FILES ${PROJECT_SOURCE_DIR}/extern/Eigen/*.hpp ${PROJECT_SOURCE_DIR}/extern/pcg/*.hpp)
 file(GLOB_RECURSE HEADER_FILES ${PROJECT_SOURCE_DIR}/include/*.hpp)
 file(GLOB_RECURSE SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
@@ -8,6 +8,16 @@ add_library(${target_name} STATIC ${SOURCE_FILES} ${HEADER_FILES} ${EXTERN_HEADE
 # set include directories
 target_include_directories(${target_name} PUBLIC ${PROJECT_SOURCE_DIR}/extern)
 target_include_directories(${target_name} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+
+# add MQT::Core target
+set(BUILD_MQT_CORE_TESTS
+		OFF
+		CACHE BOOL "Build MQT Core tests")
+add_subdirectory("${PROJECT_SOURCE_DIR}/extern/mqt-core" "extern/mqt-core"
+		EXCLUDE_FROM_ALL)
+
+# link to the MQT::Core libraries
+target_link_libraries(${PROJECT_NAME} PUBLIC MQT::CoreDD)
 
 # set required C++ standard
 target_compile_features(${target_name} PUBLIC cxx_std_17)
