@@ -28,11 +28,11 @@ bool BasisGenerator::checkOutcomes(const std::vector<int>& outcomes) {
 }
 
 bool BasisGenerator::checkState(const State& state) {
-  std::size_t nb_qudits = state.qudits.size();
-  std::size_t qudit_len = state.qudits[0].size();
+  std::size_t const nbQudits = state.qudits.size();
+  std::size_t const quditLen = state.qudits[0].size();
 
   for (const std::vector<int>& qudit : state.qudits) {
-    if (qudit.size() == qudit_len) {
+    if (qudit.size() == quditLen) {
       if (!checkOutcomes(qudit)) {
         return false;
       }
@@ -41,18 +41,18 @@ bool BasisGenerator::checkState(const State& state) {
     }
   }
 
-  if (nb_qudits != static_cast<int>(state.roots.size()) + 1) {
+  if (nbQudits != static_cast<int>(state.roots.size()) + 1) {
     return false;
   }
 
-  int previous_outcome = state.qudits[0].back();
+  int previousOutcome = state.qudits[0].back();
 
   for (size_t i = 0; i < state.roots.size(); ++i) {
-    if (!checkRule(previous_outcome, state.qudits[i + 1].back(),
+    if (!checkRule(previousOutcome, state.qudits[i + 1].back(),
                    state.roots[i])) {
       return false;
     }
-    previous_outcome = state.roots[i];
+    previousOutcome = state.roots[i];
   }
 
   return true;
@@ -63,9 +63,9 @@ State BasisGenerator::genState(const std::vector<int>& comb, int nbQudits,
   State state;
 
   for (size_t i = 0; i < comb.size(); ++i) {
-    int label = comb[i];
-    if (i < (nbQudits * quditLen)) {
-      if (i % quditLen) {
+    int const label = comb[i];
+    if (i < (static_cast<size_t>(nbQudits) * quditLen)) {
+      if ((i % quditLen) != 0U) {
         state.qudits.back().push_back(label);
       } else {
         state.qudits.push_back({label});
@@ -79,33 +79,33 @@ State BasisGenerator::genState(const std::vector<int>& comb, int nbQudits,
 }
 
 Basis BasisGenerator::generateBasis(int nbQudits, int nbAnyonsPerQudit) {
-  int nb_roots = nbQudits - 1;
-  int qudit_len = nbAnyonsPerQudit - 1;
-  int nb_labels = nbQudits * qudit_len + nb_roots;
+  int const nbRoots = nbQudits - 1;
+  int const quditLen = nbAnyonsPerQudit - 1;
+  int const nbLabels = nbQudits * quditLen + nbRoots;
 
   std::vector<State> basis;
-  std::vector<int> curr_comb(nb_labels, 0);
-  std::vector<int> final_comb(nb_labels, 1);
+  std::vector<int> currComb(nbLabels, 0);
+  std::vector<int> const finalComb(nbLabels, 1);
 
-  State curr_state = genState(curr_comb, nbQudits, qudit_len);
+  State currState = genState(currComb, nbQudits, quditLen);
 
-  if (checkState(curr_state)) {
-    basis.push_back(curr_state);
+  if (checkState(currState)) {
+    basis.push_back(currState);
   }
 
-  while (curr_comb != final_comb) {
-    for (int i = 0; i < nb_labels; ++i) {
-      if (curr_comb[i] == 0) {
-        curr_comb[i] = 1;
+  while (currComb != finalComb) {
+    for (int i = 0; i < nbLabels; ++i) {
+      if (currComb[i] == 0) {
+        currComb[i] = 1;
         break;
       }
-      curr_comb[i] = 0;
+      currComb[i] = 0;
     }
 
-    curr_state = genState(curr_comb, nbQudits, qudit_len);
+    currState = genState(currComb, nbQudits, quditLen);
 
-    if (checkState(curr_state)) {
-      basis.push_back(curr_state);
+    if (checkState(currState)) {
+      basis.push_back(currState);
     }
   }
 
