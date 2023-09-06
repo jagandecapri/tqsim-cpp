@@ -124,7 +124,7 @@ public:
    *
    * @return The Sigma matrix component.
    */
-  std::complex<double> genSigma(int index, const State& stateI,
+  static std::complex<double> genSigma(int index, const State& stateI,
                                  const State& stateF);
 
   /**
@@ -138,6 +138,6 @@ public:
    * @return Matrix representation of the braiding operator as a list of lists
    * (sigmas).
    */
-  Eigen::MatrixXcd generateBraidingOperator(int index, int nbQudits,
+  static Eigen::MatrixXcd generateBraidingOperator(int index, int nbQudits,
                                               int nbAnyonsPerQudit);
 };
