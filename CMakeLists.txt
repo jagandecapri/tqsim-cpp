@@ -19,19 +19,21 @@ endif()
 set_property(GLOBAL PROPERTY CMAKE_CXX_STANDARD_REQUIRED ON)
 set_property(GLOBAL PROPERTY CXX_EXTENSIONS OFF)
 
-option(ENABLE_IPO "Enable Interprocedural Optimization, aka Link Time Optimization (LTO)" ON)
-if(ENABLE_IPO)
-	include(CheckIPOSupported)
-	check_ipo_supported(RESULT ipo_supported OUTPUT ipo_output)
-	# enable inter-procedural optimization if it is supported
-	if(ipo_supported)
-		set(CMAKE_INTERPROCEDURAL_OPTIMIZATION
-		    TRUE
-		    CACHE BOOL "Enable Interprocedural Optimization" FORCE)
-	else()
-		message(DEBUG "IPO is not supported: ${ipo_output}")
-	endif()
-endif()
+#option(ENABLE_IPO "Enable Interprocedural Optimization, aka Link Time Optimization (LTO)" ON)
+#if(ENABLE_IPO)
+#	include(CheckIPOSupported)
+#	check_ipo_supported(RESULT ipo_supported OUTPUT ipo_output)
+#	# enable inter-procedural optimization if it is supported
+#	if(ipo_supported)
+#		set(CMAKE_INTERPROCEDURAL_OPTIMIZATION
+#		    TRUE
+#		    CACHE BOOL "Enable Interprocedural Optimization" FORCE)
+#	else()
+#		message(DEBUG "IPO is not supported: ${ipo_output}")
+#	endif()
+#endif()
+
+set(ENABLE_IPO:BOOL=OFF)
 
 # check whether `modulename` is correctly cloned in the `extern` directory.
 macro(CHECK_SUBMODULE_PRESENT modulename)
@@ -52,6 +54,9 @@ add_subdirectory(src)
 # add main executable
 add_executable(tqsim main.cpp)
 target_link_libraries(tqsim PUBLIC tqsim-cpp)
+
+add_executable(tqsim-dd	main_dd.cpp)
+target_link_libraries(tqsim-dd PUBLIC tqsim-cpp)
 
 # add test code
 option(BUILD_TQSIM_TESTS "Also build tests for the TQSIM project" ON)
