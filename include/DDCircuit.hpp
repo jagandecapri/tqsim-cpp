@@ -24,9 +24,9 @@ class DDCircuit {
     int nbBraids{};
     bool measured{};
     Basis basis;
-    Eigen::Index dim{};
+    size_t dim{};
     std::vector<std::tuple<int, int>> braidsHistory;
-    dd::vEdge currentState{};
+    dd::vEdge currentState;
     std::vector<Eigen::MatrixXcd> sigmas;
     std::unique_ptr<dd::Package<>> circuitDD;
     std::vector<dd::mEdge> braidingOperatorsDD;
@@ -40,7 +40,7 @@ class DDCircuit {
 
     [[nodiscard]] int getNbAnyonsPerQudit() const { return nbAnyonsPerQudit; }
 
-    [[nodiscard]] Eigen::Index getDim() const { return dim; }
+    [[nodiscard]] size_t getDim() const { return dim; }
 
     Basis getBasis() { return basis; }
 
@@ -93,13 +93,6 @@ class DDCircuit {
     // Constructor and other methods
 
     /**
-     * Computes and returns the current state vector of the circuit.
-     *
-     * @return Eigen::VectorXcd The state vector of the circuit.
-     */
-    Eigen::VectorXcd statevector() { return unitary * currentState; }
-
-    /**
      * Simulates the quantum circuit for a specified number of shots and returns
      * the measurement results.
      *
@@ -109,5 +102,5 @@ class DDCircuit {
      * @throws std::runtime_error Is thrown if the circuit is run without a
      * measurement.
      */
-    Result run(int shots);
+    Result run(int shots, std::size_t seed);
   };

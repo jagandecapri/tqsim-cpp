@@ -1,3 +1,4 @@
+#include <cmath>
 #include <memory>
 #include <vector>
 #include "DDCircuit.hpp"
@@ -10,13 +11,13 @@ DDCircuit::DDCircuit(int nbQudits, int nbAnyonsPerQudit)
   operatorGenerator = std::make_unique<OperatorGenerator>(basisGenerator.get());
 
   generateBasis();
-  dim = static_cast<Eigen::Index>(basis.size()); // NOLINT
+  dim = static_cast<size_t>(pow(2, nbQudits)); // NOLINT
 
   getSigmas();
-  //        for (int i = 0; i < sigmas.size(); ++i) {
-  //            std::cout << "Sigmas: " << i << " " << sigmas[i] << std::endl;
-  //        }
-  unitary = Eigen::MatrixXcd::Identity(dim, dim);
+//  //        for (int i = 0; i < sigmas.size(); ++i) {
+//  //            std::cout << "Sigmas: " << i << " " << sigmas[i] << std::endl;
+//  //        }
+//  unitary = Eigen::MatrixXcd::Identity(dim, dim);
 }
 
 void DDCircuit::generateBasis() {
@@ -24,25 +25,48 @@ void DDCircuit::generateBasis() {
 }
 
 void DDCircuit::getSigmas() {
-  sigmas.reserve(nbAnyons - 1); // Reserve space for sigmas
+  sigmas.reserve(
+      static_cast<uint64_t>(nbAnyons - 1)); // Reserve space for sigmas
 
-  int const startRow = 1;  // First row
-  int const endRow = pow(2, nbQudits);    // Fifth row (0-based indexing)
-  int const startCol = 1;  // First column
-  int const endCol = pow(2, nbQudits);    // Fifth column (0-based indexing)
+  size_t const startRow = 1;  // First row
+  auto const endRow =
+      static_cast<size_t>(pow(2, nbQudits));    // Fifth row (0-based indexing)
+  size_t const startCol = 1;  // First column
+  auto const endCol = static_cast<size_t>(
+      pow(2, nbQudits));    // Fifth column (0-based indexing)
+  std::cout << "endRow: " << endRow << '\n';
+  std::cout << "endCol: " << endCol << '\n';
+
   for (int index = 1; index < nbAnyons; ++index) {
     const Eigen::MatrixXcd sigma = operatorGenerator->generateBraidingOperator(
-        index, nbQudits, nbAnyonsPerQudit).block(startRow, startCol, endRow - startRow + 1, endCol - startCol + 1).cast<std::complex<double>>();
+        index, nbQudits, nbAnyonsPerQudit);
+    const Eigen::MatrixXcd complexMatrix = sigma.block(startRow, startCol, endRow - startRow + 1, endCol - startCol + 1).cast<std::complex<double>>();
     // Initialize a std::vector<std::vector<std::complex<double>>> with the same dimensions as the Eigen matrix
     dd::CMat sigmaMatrix(
-        sigma.rows(), std::vector<std::complex<double>>(sigma.cols()));
+        static_cast<size_t>(complexMatrix.rows()), dd::CVec(static_cast<size_t>(complexMatrix.cols())));
+    // Copy elements from the Eigen matrix to the std::vector<std::vector<std::complex<double>>>
+    for (int i = 0; i < complexMatrix.rows(); ++i) {
+      for (int j = 0; j < complexMatrix.cols(); ++j) {
+        auto row = static_cast<size_t>(i);
+        auto col = static_cast<size_t>(j);
+        sigmaMatrix[row][col] = complexMatrix(i, j);
+        //std::cout << sigmaMatrix[row][col] << " ";
+      }
+      //std::cout << '\n';
+    }
+    //std::cout << '\n';
+
     const auto dd = std::make_unique<dd::Package<>>(nbQudits);
     const auto matDD = dd->makeDDFromMatrix(sigmaMatrix);
     braidingOperatorsDD.push_back(matDD);
-
+    assert(braidingOperatorsDD[static_cast<size_t>(index - 1)].p->e[0].w.r != nullptr);
     //TODO: Not necessary to store sigma since DD are used.
     //For debugging purpose
     sigmas.push_back(sigma);
+  }
+
+  for(auto& braidingOperator: braidingOperatorsDD){
+    assert(braidingOperator.p->e[0].w.r != nullptr);
   }
 }
 
@@ -132,14 +156,19 @@ void DDCircuit::braidDD(int n, int m){
   circuitDD->incRef(currentState);
 
   int index = 0;
+  dd::Edge<dd::vNode> e;
   if (n < m) {
     //auto dd = sigmas[n - 1] * unitary;
     index = n - 1;
+    assert(braidingOperatorsDD[static_cast<size_t>(index)].p->e[0].w.r != nullptr);
+    e = circuitDD->multiply(braidingOperatorsDD[static_cast<size_t>(index)], currentState);
   } else {
     //unitary = sigmas[m - 1].adjoint() * unitary;
     index = m - 1;
+    //TODO: Need to adjoint the matrix for the second case
+    assert(braidingOperatorsDD[static_cast<size_t>(index)].p->e[0].w.r != nullptr);
+    e = circuitDD->multiply(braidingOperatorsDD[static_cast<size_t>(index)], currentState);
   }
-  auto e = circuitDD->multiply(braidingOperatorsDD[static_cast<uint64_t>(index)], currentState);
   circuitDD->decRef(currentState);
   currentState = e;
   circuitDD->garbageCollect();
@@ -192,33 +221,81 @@ void DDCircuit::measure() {
   // drawer.measure();
 }
 
-Result DDCircuit::run(int shots) {
-  if (!measured) {
-    throw std::runtime_error("The system was not measured!");
+Result DDCircuit::run(int shots, std::size_t seed) {
+//  if (!measured) {
+//    throw std::runtime_error("The system was not measured!");
+//  }
+//
+//  const Eigen::VectorXcd sv = statevector();
+//  Eigen::VectorXd probs = (sv.cwiseProduct(sv.conjugate())).real();
+//  //  std::discrete_distribution<int> distribution(probs.data(),
+//  //                                               probs.data() + probs.size());
+//  std::discrete_distribution<int> distribution(std::begin(probs),
+//                                               std::end(probs));
+//
+//  // Create a random number generator using PCG
+//  // Seed with a real random value, if available
+//  pcg_extras::seed_seq_from<std::random_device> seedSource;
+//  pcg64 generator(seedSource);
+//
+//  std::vector<int> memory(shots);
+//  for (int i = 0; i < shots; ++i) {
+//    memory[i] = distribution(generator);
+//  }
+//
+//  std::map<int, int> countsDict;
+//  for (int const value : memory) {
+//    countsDict[value]++;
+//  }
+//
+//  Result result = {countsDict, memory};
+//  return result;
+
+  std::mt19937_64 mt{};
+  if (seed != 0U) {
+    mt.seed(seed);
+  } else {
+    // create and properly seed rng
+    std::array<std::mt19937_64::result_type, std::mt19937_64::state_size>
+        randomData{};
+    std::random_device rd;
+    std::generate(std::begin(randomData), std::end(randomData),
+                  [&rd]() { return rd(); });
+    std::seed_seq seeds(std::begin(randomData), std::end(randomData));
+    mt.seed(seeds);
   }
 
-  const Eigen::VectorXcd sv = statevector();
-  Eigen::VectorXd probs = (sv.cwiseProduct(sv.conjugate())).real();
-  //  std::discrete_distribution<int> distribution(probs.data(),
-  //                                               probs.data() + probs.size());
-  std::discrete_distribution<int> distribution(std::begin(probs),
-                                               std::end(probs));
-
-  // Create a random number generator using PCG
-  // Seed with a real random value, if available
-  pcg_extras::seed_seq_from<std::random_device> seedSource;
-  pcg64 generator(seedSource);
-
-  std::vector<int> memory(shots);
-  for (int i = 0; i < shots; ++i) {
-    memory[i] = distribution(generator);
+  // measure all qubits
+  std::map<std::string, std::size_t> counts{};
+  for (std::size_t i = 0U; i < shots; ++i) {
+    // measure all returns a string of the form "q(n-1) ... q(0)"
+    auto measurement = circuitDD->measureAll(currentState, false, mt);
+    counts.operator[](measurement) += 1U;
   }
+  // reduce reference count of measured state
+  circuitDD->decRef(currentState);
 
-  std::map<int, int> countsDict;
-  for (int const value : memory) {
-    countsDict[value]++;
-  }
-
-  Result result = {countsDict, memory};
-  return result;
+//  std::map<std::string, std::size_t> actualCounts{};
+//  for (const auto& [bitstring, count] : counts) {
+//    std::string measurement(qc->getNcbits(), '0');
+//    if (hasMeasurements) {
+//      // if the circuit contains measurements, we only want to return the
+//      // measured bits
+//      for (const auto& [qubit, bit] : measurementMap) {
+//        // measurement map specifies that the circuit `qubit` is measured into
+//        // a certain `bit`
+//        measurement[qc->getNcbits() - 1U - bit] =
+//            bitstring[bitstring.size() - 1U - qubit];
+//      }
+//    } else {
+//      // otherwise, we consider the output permutation for determining where
+//      // to measure the qubits to
+//      for (const auto& [qubit, bit] : qc->outputPermutation) {
+//        measurement[qc->getNcbits() - 1 - bit] =
+//            bitstring[bitstring.size() - 1U - qubit];
+//      }
+//    }
+//    actualCounts[measurement] += count;
+//  }
+  return Result{};
 }
