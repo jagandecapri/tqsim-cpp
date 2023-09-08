@@ -4,7 +4,7 @@
 #include "Circuit.hpp"
 #include "OperatorGenerator.hpp"
 #include "utils.hpp"
-#include "dd/Node.hpp"
+#include "dd/Package.hpp"
 
 #include <iostream>
 #include <memory>
@@ -26,9 +26,10 @@ class DDCircuit {
     Basis basis;
     Eigen::Index dim{};
     std::vector<std::tuple<int, int>> braidsHistory;
-    Eigen::VectorXcd initialState;
+    dd::vEdge currentState{};
     std::vector<Eigen::MatrixXcd> sigmas;
-    std::vector<dd::mEdge> decisionDiagrams;
+    std::unique_ptr<dd::Package<>> circuitDD;
+    std::vector<dd::mEdge> braidingOperatorsDD;
     Eigen::MatrixXcd unitary;
 
   public:
@@ -67,10 +68,11 @@ class DDCircuit {
      *
      * @return A reference to the same circuit.
      */
-    void initialize(const Eigen::VectorXcd& inputState);
+    void initialize(const std::vector<std::complex<double>>& inputState);
 
     void braid(int n, int m);
 
+    void braidDD(int n, int m);
     /**
      * Takes a sequence of [sigma operator, power], and applies the successive
      * operators to the 'power'. The first operator in the sequence is the first
@@ -95,7 +97,7 @@ class DDCircuit {
      *
      * @return Eigen::VectorXcd The state vector of the circuit.
      */
-    Eigen::VectorXcd statevector() { return unitary * initialState; }
+    Eigen::VectorXcd statevector() { return unitary * currentState; }
 
     /**
      * Simulates the quantum circuit for a specified number of shots and returns

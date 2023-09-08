@@ -1,17 +1,16 @@
 #include <memory>
+#include <vector>
 #include "DDCircuit.hpp"
 #include "dd/DDDefinitions.hpp"
-#include "dd/Package.hpp"
 
 DDCircuit::DDCircuit(int nbQudits, int nbAnyonsPerQudit)
     : basisGenerator(std::make_unique<BasisGenerator>()), nbQudits(nbQudits),
       nbAnyonsPerQudit(nbAnyonsPerQudit), nbAnyons(nbQudits * nbAnyonsPerQudit){
+  circuitDD = std::make_unique<dd::Package<>>(nbQudits);
   operatorGenerator = std::make_unique<OperatorGenerator>(basisGenerator.get());
 
   generateBasis();
   dim = static_cast<Eigen::Index>(basis.size()); // NOLINT
-  initialState = Eigen::VectorXcd::Zero(dim);
-  initialState(0) = 1.0;
 
   getSigmas();
   //        for (int i = 0; i < sigmas.size(); ++i) {
@@ -39,7 +38,7 @@ void DDCircuit::getSigmas() {
         sigma.rows(), std::vector<std::complex<double>>(sigma.cols()));
     const auto dd = std::make_unique<dd::Package<>>(nbQudits);
     const auto matDD = dd->makeDDFromMatrix(sigmaMatrix);
-    decisionDiagrams.push_back(matDD);
+    braidingOperatorsDD.push_back(matDD);
 
     //TODO: Not necessary to store sigma since DD are used.
     //For debugging purpose
@@ -47,7 +46,7 @@ void DDCircuit::getSigmas() {
   }
 }
 
-void DDCircuit::initialize(const Eigen::VectorXcd& inputState) {
+void DDCircuit::initialize(const std::vector<std::complex<dd::fp>>& inputState) {
   if (nbBraids > 0) {
     throw InitializationException("Initialization should happen before any "
                                   "braiding operation is performed!");
@@ -58,12 +57,14 @@ void DDCircuit::initialize(const Eigen::VectorXcd& inputState) {
                                 std::to_string(dim));
   }
 
-  double const norm = inputState.dot(inputState.conjugate()).real();
-  if (Eigen::NumTraits<double>::epsilon() <= std::abs(norm - 1)) {
-    throw std::invalid_argument("The input state is not normalized correctly!");
-  }
+  //TODO: Check whether statevector is normalized
+//  double const norm = inputState.dot(inputState.conjugate()).real();
+//  if (Eigen::NumTraits<double>::epsilon() <= std::abs(norm - 1)) {
+//    throw std::invalid_argument("The input state is not normalized correctly!");
+//  }
   // std::cout << "Input state: " << input_state << std::endl;
-  initialState = inputState;
+  auto dd = std::make_unique<dd::Package<>>(nbQudits);
+  currentState = dd->makeStateFromVector(inputState);
 }
 
 void DDCircuit::braid(int n, int m) {
@@ -113,6 +114,41 @@ void DDCircuit::braid(int n, int m) {
   // drawer.braid(m, n);
 }
 
+void DDCircuit::braidDD(int n, int m){
+  if (m < 1 || n < 1) {
+    throw std::invalid_argument("n, m must be higher than 0!");
+  }
+
+  if (m > nbAnyons || n > nbAnyons) {
+    throw std::invalid_argument("The system has only " +
+                                std::to_string(nbAnyons) +
+                                " anyons! n, m are erroneous!");
+  }
+
+  if (std::abs(n - m) != 1) {
+    throw std::runtime_error("You can only braid adjacent anyons!");
+  }
+
+  circuitDD->incRef(currentState);
+
+  int index = 0;
+  if (n < m) {
+    //auto dd = sigmas[n - 1] * unitary;
+    index = n - 1;
+  } else {
+    //unitary = sigmas[m - 1].adjoint() * unitary;
+    index = m - 1;
+  }
+  auto e = circuitDD->multiply(braidingOperatorsDD[static_cast<uint64_t>(index)], currentState);
+  circuitDD->decRef(currentState);
+  currentState = e;
+  circuitDD->garbageCollect();
+
+  braidsHistory.emplace_back(n, m);
+
+  nbBraids++;
+}
+
 void DDCircuit::braidSequence(Sequence& braid) {
   for (const auto& step : braid) {
     if (step.size() != 2 ||
@@ -142,7 +178,7 @@ void DDCircuit::braidSequence(Sequence& braid) {
     }
 
     for (int _ = 0; _ < std::abs(power); ++_) {
-      this->braid(n, m); // Assuming the braid function exists
+      this->braidDD(n, m); // Assuming the braid function exists
     }
   }
 }
