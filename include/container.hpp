@@ -35,8 +35,8 @@ struct BraidingOperator {
   dd::mEdge ddAdjointMatrix;
 
   // Constructor to initialize the member using the std::unique_ptr<T> parameter
-  BraidingOperator(dd::mEdge a, dd::mEdge b)
-      : ddMatrix(a), ddAdjointMatrix(b) {}
+  BraidingOperator(dd::mEdge ddMatrix, dd::mEdge ddAdjointMatrix)
+      : ddMatrix(ddMatrix), ddAdjointMatrix(ddAdjointMatrix) {}
 };
 
 using BraidingOperators = std::vector<BraidingOperator>;
