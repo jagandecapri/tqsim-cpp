@@ -63,13 +63,6 @@ void DDCircuit::getSigmas() {
     // TODO: Not necessary to store sigma since DD are used.
     sigmas.push_back(sigma);
   }
-
-  assert(braidingOperators[2].ddMatrix.p->e[0].w.r != nullptr);
-  for (int index = 1; index < nbAnyons; ++index) {
-    assert(braidingOperators[static_cast<size_t>(index - 1)]
-               .ddMatrix.p->e[0]
-               .w.r != nullptr);
-  }
 }
 
 void DDCircuit::initialize(
@@ -114,19 +107,11 @@ void DDCircuit::braid(int n, int m) {
   int index = 0;
   dd::Edge<dd::vNode> e{};
   if (n < m) {
-    // auto dd = sigmas[n - 1] * unitary;
     index = n - 1;
-    assert(braidingOperators[static_cast<size_t>(index)].ddMatrix.p->e[0].w.r !=
-           nullptr);
     e = circuitDD->multiply(
         braidingOperators[static_cast<size_t>(index)].ddMatrix, currentState);
   } else {
-    // unitary = sigmas[m - 1].adjoint() * unitary;
     index = m - 1;
-    // TODO: Need to adjoint the matrix for the second case
-    assert(braidingOperators[static_cast<size_t>(index)]
-               .ddAdjointMatrix.p->e[0]
-               .w.r != nullptr);
     e = circuitDD->multiply(
         braidingOperators[static_cast<size_t>(index)].ddAdjointMatrix,
         currentState);
