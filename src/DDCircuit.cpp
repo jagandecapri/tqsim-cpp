@@ -17,11 +17,6 @@ DDCircuit::DDCircuit(int nbQudits, int nbAnyonsPerQudit)
   dim = static_cast<size_t>(pow(2, nbQudits)); // NOLINT
 
   getSigmas();
-  //  //        for (int i = 0; i < sigmas.size(); ++i) {
-  //  //            std::cout << "Sigmas: " << i << " " << sigmas[i] <<
-  //  std::endl;
-  //  //        }
-  //  unitary = Eigen::MatrixXcd::Identity(dim, dim);
 }
 
 void DDCircuit::generateBasis() {
@@ -29,17 +24,16 @@ void DDCircuit::generateBasis() {
 }
 
 void DDCircuit::getSigmas() {
-  sigmas.reserve(static_cast<size_t>(nbAnyons - 1)); // Reserve space for sigmas
+  sigmas.reserve(static_cast<size_t>(nbAnyons - 1));
   braidingOperators.reserve(static_cast<size_t>(nbAnyons - 1));
+  circuitDD = std::make_unique<dd::Package<>>(nbQudits);
 
   size_t const startRow = 1; // First row
-  auto const endRow =
-      static_cast<size_t>(pow(2, nbQudits)); // Fifth row (0-based indexing)
-  size_t const startCol = 1;                 // First column
-  auto const endCol =
-      static_cast<size_t>(pow(2, nbQudits)); // Fifth column (0-based indexing)
-  std::cout << "endRow: " << endRow << '\n';
-  std::cout << "endCol: " << endCol << '\n';
+  auto const endRow = static_cast<size_t>(pow(2, nbQudits));
+  size_t const startCol = 1; // First column
+  auto const endCol = static_cast<size_t>(pow(2, nbQudits));
+  //  std::cout << "Operator matrix endRow: " << endRow << '\n';
+  //  std::cout << "Operator matrix endCol: " << endCol << '\n';
 
   for (int index = 1; index < nbAnyons; ++index) {
     const Eigen::MatrixXcd sigma = operatorGenerator->generateBraidingOperator(
@@ -49,28 +43,21 @@ void DDCircuit::getSigmas() {
             .block(startRow, startCol, endRow - startRow + 1,
                    endCol - startCol + 1)
             .cast<std::complex<double>>();
-    // Initialize a std::vector<std::vector<std::complex<double>>> with the same
-    // dimensions as the Eigen matrix
+
     dd::CMat sigmaMatrix(static_cast<size_t>(complexMatrix.rows()),
                          dd::CVec(static_cast<size_t>(complexMatrix.cols())));
-    // Copy elements from the Eigen matrix to the
-    // std::vector<std::vector<std::complex<double>>>
+
     for (int i = 0; i < complexMatrix.rows(); ++i) {
       for (int j = 0; j < complexMatrix.cols(); ++j) {
         auto row = static_cast<size_t>(i);
         auto col = static_cast<size_t>(j);
         sigmaMatrix[row][col] = complexMatrix(i, j);
-        // std::cout << sigmaMatrix[row][col] << " ";
       }
-      // std::cout << '\n';
     }
-    // std::cout << '\n';
 
-    auto dd = std::make_unique<dd::Package<>>(nbQudits);
-    // For debugging purpose
-    auto matDD = dd->makeDDFromMatrix(sigmaMatrix);
-    auto matAdjointDD = dd->conjugateTranspose(matDD);
-    BraidingOperator braidingOperator{std::move(dd), matDD, matAdjointDD};
+    auto matDD = circuitDD->makeDDFromMatrix(sigmaMatrix);
+    auto matAdjointDD = circuitDD->conjugateTranspose(matDD);
+    BraidingOperator braidingOperator{matDD, matAdjointDD};
     braidingOperators.push_back(std::move(braidingOperator));
 
     // TODO: Not necessary to store sigma since DD are used.
@@ -103,59 +90,11 @@ void DDCircuit::initialize(
   //    throw std::invalid_argument("The input state is not normalized
   //    correctly!");
   //  }
-  // std::cout << "Input state: " << input_state << std::endl;
   auto dd = std::make_unique<dd::Package<>>(nbQudits);
   currentState = dd->makeStateFromVector(inputState);
 }
 
 void DDCircuit::braid(int n, int m) {
-  if (measured) {
-    throw std::runtime_error(
-        "System already measured! Cannot perform further braiding!");
-  }
-
-  if (m < 1 || n < 1) {
-    throw std::invalid_argument("n, m must be higher than 0!");
-  }
-
-  if (m > nbAnyons || n > nbAnyons) {
-    throw std::invalid_argument("The system has only " +
-                                std::to_string(nbAnyons) +
-                                " anyons! n, m are erroneous!");
-  }
-
-  if (std::abs(n - m) != 1) {
-    throw std::runtime_error("You can only braid adjacent anyons!");
-  }
-
-  //        std::cout << "Unitary before modificaition: " << unitary <<
-  //        std::endl;
-
-  if (n < m) {
-    unitary = sigmas[n - 1] * unitary;
-  } else {
-    unitary = sigmas[m - 1].adjoint() * unitary;
-  }
-
-  braidsHistory.emplace_back(n, m);
-
-  nbBraids++;
-
-  //        std::cout << "n = " << n << " m = " << m << std::endl;
-  //        std::cout << "nb_braids: " << nb_braids << std::endl;
-  //        if (n < m) {
-  //            std::cout << "n<m sigmas: " << sigmas[n - 1] << std::endl;
-  //        } else {
-  //            std::cout << "n >= m sigmas: " << sigmas[m - 1].adjoint() <<
-  //            std::endl;
-  //        }
-  //        std::cout << "unitary: " << unitary << std::endl;
-
-  // Assuming drawer.braid function exists
-  // drawer.braid(m, n);
-}
-
-void DDCircuit::braidDD(int n, int m) {
   if (m < 1 || n < 1) {
     throw std::invalid_argument("n, m must be higher than 0!");
   }
@@ -230,7 +169,7 @@ void DDCircuit::braidSequence(Sequence& braid) {
     }
 
     for (int _ = 0; _ < std::abs(power); ++_) {
-      this->braidDD(n, m); // Assuming the braid function exists
+      this->braid(n, m); // Assuming the braid function exists
     }
   }
 }
@@ -244,37 +183,7 @@ void DDCircuit::measure() {
   // drawer.measure();
 }
 
-Result DDCircuit::run(int shots, std::size_t seed) {
-  //  if (!measured) {
-  //    throw std::runtime_error("The system was not measured!");
-  //  }
-  //
-  //  const Eigen::VectorXcd sv = statevector();
-  //  Eigen::VectorXd probs = (sv.cwiseProduct(sv.conjugate())).real();
-  //  //  std::discrete_distribution<int> distribution(probs.data(),
-  //  //                                               probs.data() +
-  //  probs.size()); std::discrete_distribution<int>
-  //  distribution(std::begin(probs),
-  //                                               std::end(probs));
-  //
-  //  // Create a random number generator using PCG
-  //  // Seed with a real random value, if available
-  //  pcg_extras::seed_seq_from<std::random_device> seedSource;
-  //  pcg64 generator(seedSource);
-  //
-  //  std::vector<int> memory(shots);
-  //  for (int i = 0; i < shots; ++i) {
-  //    memory[i] = distribution(generator);
-  //  }
-  //
-  //  std::map<int, int> countsDict;
-  //  for (int const value : memory) {
-  //    countsDict[value]++;
-  //  }
-  //
-  //  Result result = {countsDict, memory};
-  //  return result;
-
+ResultDD DDCircuit::run(int shots, std::size_t seed) {
   std::mt19937_64 mt{};
   if (seed != 0U) {
     mt.seed(seed);
@@ -290,7 +199,7 @@ Result DDCircuit::run(int shots, std::size_t seed) {
   }
 
   // measure all qubits
-  std::map<std::string, std::size_t> counts{};
+  ResultDD counts{};
   auto shotsSt = static_cast<size_t>(shots);
   for (std::size_t i = 0U; i < shotsSt; ++i) {
     // measure all returns a string of the form "q(n-1) ... q(0)"
@@ -298,30 +207,7 @@ Result DDCircuit::run(int shots, std::size_t seed) {
     counts.operator[](measurement) += 1U;
   }
   // reduce reference count of measured state
-  circuitDD->decRef(currentState);
+  // circuitDD->decRef(currentState);
 
-  //  std::map<std::string, std::size_t> actualCounts{};
-  //  for (const auto& [bitstring, count] : counts) {
-  //    std::string measurement(qc->getNcbits(), '0');
-  //    if (hasMeasurements) {
-  //      // if the circuit contains measurements, we only want to return the
-  //      // measured bits
-  //      for (const auto& [qubit, bit] : measurementMap) {
-  //        // measurement map specifies that the circuit `qubit` is measured
-  //        into
-  //        // a certain `bit`
-  //        measurement[qc->getNcbits() - 1U - bit] =
-  //            bitstring[bitstring.size() - 1U - qubit];
-  //      }
-  //    } else {
-  //      // otherwise, we consider the output permutation for determining where
-  //      // to measure the qubits to
-  //      for (const auto& [qubit, bit] : qc->outputPermutation) {
-  //        measurement[qc->getNcbits() - 1 - bit] =
-  //            bitstring[bitstring.size() - 1U - qubit];
-  //      }
-  //    }
-  //    actualCounts[measurement] += count;
-  //  }
-  return Result{};
+  return counts;
 }

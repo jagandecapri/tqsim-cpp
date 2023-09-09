@@ -28,6 +28,8 @@ struct Result {
   std::vector<int> memory;
 };
 
+using ResultDD = std::map<std::string, std::size_t>;
+
 struct BraidingOperator {
   std::unique_ptr<dd::Package<>> dd;
   dd::mEdge ddMatrix;
@@ -37,6 +39,8 @@ struct BraidingOperator {
   BraidingOperator(std::unique_ptr<dd::Package<>> uniqueDd, dd::mEdge a,
                    dd::mEdge b)
       : dd(std::move(uniqueDd)), ddMatrix(a), ddAdjointMatrix(b) {}
+  BraidingOperator(dd::mEdge a, dd::mEdge b)
+      : ddMatrix(a), ddAdjointMatrix(b) {}
 };
 
 using BraidingOperators = std::vector<BraidingOperator>;

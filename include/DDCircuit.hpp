@@ -72,8 +72,6 @@ public:
   void initialize(const std::vector<std::complex<double>>& inputState);
 
   void braid(int n, int m);
-
-  void braidDD(int n, int m);
   /**
    * Takes a sequence of [sigma operator, power], and applies the successive
    * operators to the 'power'. The first operator in the sequence is the first
@@ -103,5 +101,5 @@ public:
    * @throws std::runtime_error Is thrown if the circuit is run without a
    * measurement.
    */
-  Result run(int shots, std::size_t seed);
+  ResultDD run(int shots, std::size_t seed);
 };
