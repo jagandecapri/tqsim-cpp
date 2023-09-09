@@ -11,3 +11,8 @@ public:
 private:
   const char* msg;
 };
+
+// https://noobtuts.com/cpp/compare-float-values
+bool cmpf(double A, double B, double epsilon = 0.005f) {
+  return (fabs(A - B) < epsilon);
+}
