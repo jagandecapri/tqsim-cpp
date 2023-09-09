@@ -31,14 +31,10 @@ struct Result {
 using ResultDD = std::map<std::string, std::size_t>;
 
 struct BraidingOperator {
-  std::unique_ptr<dd::Package<>> dd;
   dd::mEdge ddMatrix;
   dd::mEdge ddAdjointMatrix;
 
   // Constructor to initialize the member using the std::unique_ptr<T> parameter
-  BraidingOperator(std::unique_ptr<dd::Package<>> uniqueDd, dd::mEdge a,
-                   dd::mEdge b)
-      : dd(std::move(uniqueDd)), ddMatrix(a), ddAdjointMatrix(b) {}
   BraidingOperator(dd::mEdge a, dd::mEdge b)
       : ddMatrix(a), ddAdjointMatrix(b) {}
 };
