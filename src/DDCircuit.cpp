@@ -64,11 +64,23 @@ void DDCircuit::getSigmas() {
     auto debugMatDD = circuitDD->getMatrix(matDD);
     for (int i = 0; i < complexMatrix.rows(); ++i) {
       for (int j = 0; j < complexMatrix.cols(); ++j) {
+        if (index == 3) {
+          std::cout << complexMatrix(i, j) << "->" << debugMatDD[i][j] << "\t";
+        }
         assert(cmpf(complexMatrix(i, j).real(), debugMatDD[i][j].real()) ==
                true);
         assert(cmpf(complexMatrix(i, j).imag(), debugMatDD[i][j].imag()) ==
                true);
       }
+      if (index == 3) {
+        std::cout << '\n';
+      }
+    }
+
+    if (index == 3) {
+      std::cout << "Error between Eigen value and DD: " << complexMatrix(2, 2)
+                << "->" << debugMatDD[2][2];
+      std::cout << '\n';
     }
 
     // Check if the Eigen matrix is equal to the std::vector
@@ -76,12 +88,18 @@ void DDCircuit::getSigmas() {
     const Eigen::MatrixXcd complexMatrixAdjoint = complexMatrix.adjoint();
     for (int i = 0; i < complexMatrixAdjoint.rows(); ++i) {
       for (int j = 0; j < complexMatrixAdjoint.cols(); ++j) {
+        if (index == 3) {
+          std::cout << complexMatrixAdjoint(i, j) << "->"
+                    << debugMatAdjointDD[i][j] << "\t";
+        }
         assert(cmpf(complexMatrixAdjoint(i, j).real(),
                     debugMatAdjointDD[i][j].real()) == true);
         assert(cmpf(complexMatrixAdjoint(i, j).imag(),
                     debugMatAdjointDD[i][j].imag()) == true);
       }
-      std::cout << '\n';
+      if (index == 3) {
+        std::cout << '\n';
+      }
     }
     // DEBUGGING
 
