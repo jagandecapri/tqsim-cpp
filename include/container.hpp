@@ -1,5 +1,7 @@
 #pragma once
 
+#include "dd/Package.hpp"
+
 #include <complex>
 #include <map>
 #include <vector>
@@ -25,3 +27,16 @@ struct Result {
   std::map<int, int> countsDict;
   std::vector<int> memory;
 };
+
+struct BraidingOperator {
+  std::unique_ptr<dd::Package<>> dd;
+  dd::mEdge ddMatrix;
+  dd::mEdge ddAdjointMatrix;
+
+  // Constructor to initialize the member using the std::unique_ptr<T> parameter
+  BraidingOperator(std::unique_ptr<dd::Package<>> uniqueDd, dd::mEdge a,
+                   dd::mEdge b)
+      : dd(std::move(uniqueDd)), ddMatrix(a), ddAdjointMatrix(b) {}
+};
+
+using BraidingOperators = std::vector<BraidingOperator>;
