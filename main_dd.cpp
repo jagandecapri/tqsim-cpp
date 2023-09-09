@@ -76,7 +76,7 @@ int main(int /*unused*/, char** /*unused*/) {
   // TODO: CNOT not working properly as Warning below is thrown:
   // WARNING in MAll: numerical instability occurred during simulation:
   // |alpha|^2 + |beta|^2 = xyz, but should be 1!
-  // circuit.braidSequence(cnotSequence);
+  circuit.braidSequence(cnotSequence);
 
   circuit.measure();
   int const shots = 50;
