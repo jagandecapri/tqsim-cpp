@@ -86,7 +86,7 @@ void DDCircuit::getSigmas() {
     // DEBUGGING
 
     BraidingOperator braidingOperator{matDD, matAdjointDD};
-    braidingOperators.push_back(std::move(braidingOperator));
+    braidingOperators.push_back(braidingOperator);
 
     // DEBUGGING Not necessary to store sigma since DD are used. Just for
     // debugging
