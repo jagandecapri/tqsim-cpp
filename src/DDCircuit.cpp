@@ -1,6 +1,7 @@
 #include "DDCircuit.hpp"
 
 #include "dd/DDDefinitions.hpp"
+#include "utils.hpp"
 
 #include <cmath>
 #include <memory>
@@ -57,10 +58,38 @@ void DDCircuit::getSigmas() {
 
     auto matDD = circuitDD->makeDDFromMatrix(sigmaMatrix);
     auto matAdjointDD = circuitDD->conjugateTranspose(matDD);
+
+    // DEBUGGING to check whether DD conjugate transpose is equal to Eigen
+    // adjoint
+    auto debugMatDD = circuitDD->getMatrix(matDD);
+    for (int i = 0; i < complexMatrix.rows(); ++i) {
+      for (int j = 0; j < complexMatrix.cols(); ++j) {
+        assert(cmpf(complexMatrix(i, j).real(), debugMatDD[i][j].real()) ==
+               true);
+        assert(cmpf(complexMatrix(i, j).imag(), debugMatDD[i][j].imag()) ==
+               true);
+      }
+    }
+
+    // Check if the Eigen matrix is equal to the std::vector
+    auto debugMatAdjointDD = circuitDD->getMatrix(matAdjointDD);
+    const Eigen::MatrixXcd complexMatrixAdjoint = complexMatrix.adjoint();
+    for (int i = 0; i < complexMatrixAdjoint.rows(); ++i) {
+      for (int j = 0; j < complexMatrixAdjoint.cols(); ++j) {
+        assert(cmpf(complexMatrixAdjoint(i, j).real(),
+                    debugMatAdjointDD[i][j].real()) == true);
+        assert(cmpf(complexMatrixAdjoint(i, j).imag(),
+                    debugMatAdjointDD[i][j].imag()) == true);
+      }
+      std::cout << '\n';
+    }
+    // DEBUGGING
+
     BraidingOperator braidingOperator{matDD, matAdjointDD};
     braidingOperators.push_back(std::move(braidingOperator));
 
-    // TODO: Not necessary to store sigma since DD are used.
+    // DEBUGGING Not necessary to store sigma since DD are used. Just for
+    // debugging
     sigmas.push_back(sigma);
   }
 }
