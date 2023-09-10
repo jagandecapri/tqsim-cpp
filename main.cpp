@@ -66,20 +66,6 @@ int main(int /*unused*/, char** /*unused*/) {
   circuit.braidSequence(hadSequence2);
   circuit.braidSequence(cnotSequence);
 
-  std::vector<Eigen::MatrixXcd> const braidingOperators =
-      circuit.getBraidingOperators();
-
-  // Define the range for rows and columns you want to select
-  size_t const startRow = 1; // First row
-  auto const endRow =
-      static_cast<size_t>(pow(2, nrQubits)); // Fifth row (0-based indexing)
-  int const startCol = 1;                    // First column
-  auto const endCol =
-      static_cast<size_t>(pow(2, nrQubits)); // Fifth column (0-based indexing)
-
-  std::cout << "endRow: " << endRow << '\n';
-  std::cout << "endCol: " << endCol << '\n';
-
   circuit.measure();
   int const shots = 10000;
   Result const res = circuit.run(shots);
@@ -95,6 +81,20 @@ int main(int /*unused*/, char** /*unused*/) {
   for (const auto& count : res.countsDict) {
     std::cout << count.first << ": " << count.second << '\n';
   }
+
+  std::vector<Eigen::MatrixXcd> const braidingOperators =
+      circuit.getBraidingOperators();
+
+  // Define the range for rows and columns you want to select
+  size_t const startRow = 1; // First row
+  auto const endRow =
+      static_cast<size_t>(pow(2, nrQubits)); // Fifth row (0-based indexing)
+  int const startCol = 1;                    // First column
+  auto const endCol =
+      static_cast<size_t>(pow(2, nrQubits)); // Fifth column (0-based indexing)
+
+  std::cout << "endRow: " << endRow << '\n';
+  std::cout << "endCol: " << endCol << '\n';
 
   for (int index = 0; index < static_cast<int>(braidingOperators.size());
        ++index) {
