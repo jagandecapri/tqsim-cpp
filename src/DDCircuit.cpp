@@ -130,8 +130,7 @@ void DDCircuit::initialize(
   //    throw std::invalid_argument("The input state is not normalized
   //    correctly!");
   //  }
-  auto dd = std::make_unique<dd::Package<>>(nbQudits);
-  currentState = dd->makeStateFromVector(inputState);
+  currentState = circuitDD->makeStateFromVector(inputState);
 }
 
 void DDCircuit::braid(int n, int m) {
