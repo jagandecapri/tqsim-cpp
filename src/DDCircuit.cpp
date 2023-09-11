@@ -27,7 +27,6 @@ void DDCircuit::generateBasis() {
 void DDCircuit::getSigmas() {
   sigmas.reserve(static_cast<size_t>(nbAnyons - 1));
   braidingOperators.reserve(static_cast<size_t>(nbAnyons - 1));
-  circuitDD = std::make_unique<dd::Package<>>(nbQudits);
 
   size_t const startRow = 1; // First row
   auto const endRow = static_cast<size_t>(pow(2, nbQudits));
@@ -131,6 +130,7 @@ void DDCircuit::initialize(
   //    correctly!");
   //  }
   currentState = circuitDD->makeStateFromVector(inputState);
+  circuitDD->incRef(currentState);
 }
 
 void DDCircuit::braid(int n, int m) {
@@ -153,13 +153,11 @@ void DDCircuit::braid(int n, int m) {
   int index = 0;
   dd::Edge<dd::vNode> e{};
   if (n < m) {
-    index = n - 1;
     e = circuitDD->multiply(
-        braidingOperators[static_cast<size_t>(index)].ddMatrix, currentState);
+        braidingOperators[static_cast<size_t>(n - 1)].ddMatrix, currentState);
   } else {
-    index = m - 1;
     e = circuitDD->multiply(
-        braidingOperators[static_cast<size_t>(index)].ddAdjointMatrix,
+        braidingOperators[static_cast<size_t>(m - 1)].ddAdjointMatrix,
         currentState);
   }
   circuitDD->decRef(currentState);
