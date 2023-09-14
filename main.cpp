@@ -57,11 +57,14 @@ int main(int /*unused*/, char** /*unused*/) {
 
   // Start the timer
   auto start = std::chrono::high_resolution_clock::now();
-  const auto nrQubits = 2U;
+  const auto nrQubits = 3U;
 
   Circuit circuit = Circuit(nrQubits, 3);
-  Eigen::VectorXcd initSequence(13);
-  initSequence << 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+  // Eigen::VectorXcd initSequence(13);
+  // initSequence << 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+  Eigen::VectorXcd initSequence = Eigen::VectorXcd::Zero(21);
+  initSequence(1) = std::complex<double>(1.0, 0.0);
+  //  initSequence << 1, 0, 0, 0;
   circuit.initialize(initSequence);
   circuit.braidSequence(hadSequence2);
   circuit.braidSequence(cnotSequence);
@@ -82,6 +85,8 @@ int main(int /*unused*/, char** /*unused*/) {
     std::cout << count.first << ": " << count.second << '\n';
   }
 
+  return 0;
+
   std::vector<Eigen::MatrixXcd> const braidingOperators =
       circuit.getBraidingOperators();
 
@@ -95,6 +100,10 @@ int main(int /*unused*/, char** /*unused*/) {
 
   std::cout << "endRow: " << endRow << '\n';
   std::cout << "endCol: " << endCol << '\n';
+
+  const auto dd = std::make_unique<dd::Package<>>(nrQubits);
+  const auto sv = dd->makeStateFromVector({0, 1, 0, 0});
+  dd->printVector(sv);
 
   for (int index = 0; index < static_cast<int>(braidingOperators.size());
        ++index) {
@@ -128,7 +137,7 @@ int main(int /*unused*/, char** /*unused*/) {
                          dd::CVec(static_cast<size_t>(complexMatrix.cols())));
 
     // Copy elements from the Eigen matrix to the
-    // std::vector<std::vector<std::complex<double>>>
+    //     std::vector<std::vector<std::complex<double>>>
     for (int i = 0; i < complexMatrix.rows(); ++i) {
       for (int j = 0; j < complexMatrix.cols(); ++j) {
         auto row = static_cast<size_t>(i);
@@ -140,9 +149,29 @@ int main(int /*unused*/, char** /*unused*/) {
     }
     std::cout << '\n';
 
-    const auto dd = std::make_unique<dd::Package<>>(nrQubits);
     const auto matDD = dd->makeDDFromMatrix(sigmaMatrix);
+    dd->printMatrix(matDD);
     export2Dot(matDD, formattedString, true, true, false, false, true);
+
+    // DEBUGGING to check whether DD conjugate transpose is equal to Eigen
+    // adjoint
+    //    std::cout << "Compare sigmaMatrix and DD matrix" << '\n';
+    //
+    //    auto debugMatDD = dd->getMatrix(matDD);
+    //    for (int i = 0; i < complexMatrix.rows(); ++i) {
+    //      for (int j = 0; j < complexMatrix.cols(); ++j) {
+    //        // if (index == 3) {
+    //        std::cout << sigmaMatrix[i][j] << "->" << debugMatDD[i][j] <<
+    //        "\t";
+    //        //}
+    //        assert(cmpf(sigmaMatrix[i][j].real(), debugMatDD[i][j].real()) ==
+    //        true); assert(cmpf(sigmaMatrix[i][j].imag(),
+    //        debugMatDD[i][j].imag()) == true);
+    //      }
+    //      // if (index == 3) {
+    //      std::cout << '\n';
+    //      //}
+    //    }
   }
 
   return 0;

@@ -6,8 +6,8 @@
 #include "utils.hpp"
 
 #include <iostream>
-#include <memory>
 #include <map>
+#include <memory>
 #include <pcg/pcg_extras.hpp>
 #include <pcg/pcg_random.hpp>
 #include <random>
@@ -23,6 +23,8 @@ private:
   int nbBraids{};
   bool measured{};
   Basis basis;
+  std::vector<int> fibonacciSeries{};
+  int blockSize;
   Eigen::Index dim{};
   std::vector<std::tuple<int, int>> braidsHistory;
   Eigen::VectorXcd initialState;
@@ -41,13 +43,13 @@ public:
 
   Basis getBasis() { return basis; }
 
-  std::vector<std::tuple<int, int>> getBraidsHistory() {
-    return braidsHistory;
-  }
+  std::vector<std::tuple<int, int>> getBraidsHistory() { return braidsHistory; }
 
   std::vector<Eigen::MatrixXcd> getBraidingOperators() { return sigmas; }
 
   Eigen::MatrixXcd getUnitary() { return unitary; }
+
+  void generateFibonacci();
 
   void generateBasis();
 

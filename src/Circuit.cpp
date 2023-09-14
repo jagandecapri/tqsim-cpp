@@ -1,5 +1,7 @@
-#include <memory>
 #include "Circuit.hpp"
+
+#include <algorithm>
+#include <memory>
 
 Circuit::Circuit(int nbQudits, int nbAnyonsPerQudit)
     : basisGenerator(std::make_unique<BasisGenerator>()), nbQudits(nbQudits),
@@ -12,15 +14,32 @@ Circuit::Circuit(int nbQudits, int nbAnyonsPerQudit)
   initialState = Eigen::VectorXcd::Zero(dim);
   initialState(0) = 1.0;
 
+  generateFibonacci();
+
   getSigmas();
   //        for (int i = 0; i < sigmas.size(); ++i) {
   //            std::cout << "Sigmas: " << i << " " << sigmas[i] << std::endl;
   //        }
-  unitary = Eigen::MatrixXcd::Identity(dim, dim);
+  //  unitary = Eigen::MatrixXcd::Identity(dim, dim);
+  blockSize = fibonacciSeries[fibonacciSeries.size() - 3];
+  unitary = Eigen::MatrixXcd::Identity(blockSize, blockSize);
 }
 
 void Circuit::generateBasis() {
   basis = basisGenerator->generateBasis(nbQudits, nbAnyonsPerQudit);
+}
+
+void Circuit::generateFibonacci() {
+  int t1 = 0, t2 = 1, nextTerm = 0;
+
+  nextTerm = t1 + t2;
+
+  while (nextTerm < dim) {
+    t1 = t2;
+    t2 = nextTerm;
+    nextTerm = t1 + t2;
+    fibonacciSeries.push_back(nextTerm);
+  }
 }
 
 void Circuit::getSigmas() {
@@ -30,6 +49,9 @@ void Circuit::getSigmas() {
     const Eigen::MatrixXcd sigma = operatorGenerator->generateBraidingOperator(
         index, nbQudits, nbAnyonsPerQudit);
     sigmas.push_back(sigma);
+    //    const Eigen::MatrixXcd complexMatrix =
+    //        sigma.block(1, 1, 4, 4).cast<std::complex<double>>();
+    //    sigmas.push_back(complexMatrix);
   }
 }
 
@@ -39,10 +61,11 @@ void Circuit::initialize(const Eigen::VectorXcd& inputState) {
                                   "braiding operation is performed!");
   }
 
-  if (inputState.size() != dim) {
-    throw std::invalid_argument("The state has wrong dimension. Should be " +
-                                std::to_string(dim));
-  }
+  //  if (inputState.size() != dim) {
+  //    throw std::invalid_argument("The state has wrong dimension. Should be "
+  //    +
+  //                                std::to_string(dim));
+  //  }
 
   double const norm = inputState.dot(inputState.conjugate()).real();
   if (Eigen::NumTraits<double>::epsilon() <= std::abs(norm - 1)) {
@@ -72,13 +95,26 @@ void Circuit::braid(int n, int m) {
     throw std::runtime_error("You can only braid adjacent anyons!");
   }
 
-  //        std::cout << "Unitary before modificaition: " << unitary <<
+  //        std::cout << "Unitary before modification: " << unitary <<
   //        std::endl;
 
+  int index = 0;
   if (n < m) {
-    unitary = sigmas[n - 1] * unitary;
+    index = n - 1;
   } else {
-    unitary = sigmas[m - 1].adjoint() * unitary;
+    index = m - 1;
+  }
+
+  Eigen::MatrixXcd const operation;
+
+  const Eigen::MatrixXcd blockMatrix = sigmas[index]
+                                           .block(0, 0, blockSize, blockSize)
+                                           .cast<std::complex<double>>();
+
+  if (n < m) {
+    unitary = blockMatrix * unitary;
+  } else {
+    unitary = blockMatrix.adjoint() * unitary;
   }
 
   braidsHistory.emplace_back(n, m);
@@ -100,10 +136,23 @@ void Circuit::braid(int n, int m) {
 }
 
 void Circuit::braidSequence(Sequence& braid) {
+  //  auto isMultiQubitOperationPredicate = [this](int const& val) {
+  //    return (val % nbAnyonsPerQudit) == 0;
+  //  };
+  //  bool isMultiQubitOperation = false;
+  //  for (auto const& step : braid) {
+  //    if (auto it = std::find_if(step.begin(), step.end(),
+  //                               isMultiQubitOperationPredicate);
+  //        it != step.end()) {
+  //      isMultiQubitOperation = true;
+  //      break;
+  //    }
+  //  }
+
   for (const auto& step : braid) {
-    if (step.size() != 2 || !std::all_of(step.begin(), step.end(), [](int  /*val*/) {
-          return std::is_integral_v<int>;
-        })) {
+    if (step.size() != 2 ||
+        !std::all_of(step.begin(), step.end(),
+                     [](int /*val*/) { return std::is_integral_v<int>; })) {
       throw std::invalid_argument("Indices and powers must be integers!");
     }
 
@@ -149,8 +198,13 @@ Result Circuit::run(int shots) {
 
   const Eigen::VectorXcd sv = statevector();
   Eigen::VectorXd probs = (sv.cwiseProduct(sv.conjugate())).real();
-//  std::discrete_distribution<int> distribution(probs.data(),
-//                                               probs.data() + probs.size());
+
+  for (auto& prob : probs) {
+    std::cout << prob << '\n';
+  }
+
+  //  std::discrete_distribution<int> distribution(probs.data(),
+  //                                               probs.data() + probs.size());
   std::discrete_distribution<int> distribution(std::begin(probs),
                                                std::end(probs));
 
